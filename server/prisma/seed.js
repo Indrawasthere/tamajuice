@@ -36,7 +36,7 @@ async function main() {
   // Create categories
   const categories = [
     {
-      name: "Jus Buah Segar",
+      name: "Jus Buah",
       description: "Fresh fruit juice",
       icon: "",
       order: 1,
@@ -47,7 +47,7 @@ async function main() {
       icon: "",
       order: 2,
     },
-    { name: "Add-ons", description: "Topping & extras", icon: "✨", order: 3 },
+    { name: "Add-ons", description: "Topping & extras", icon: "", order: 3 },
   ];
 
   const createdCategories = [];

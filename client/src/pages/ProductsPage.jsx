@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/authStore';
+import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 
 export default function ProductsPage() {
   const navigate = useNavigate();
@@ -9,15 +9,18 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-green-50">
       <div className="bg-gradient-to-r from-primary-yellow to-primary-green text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-3xl font-heading font-bold">🍊 Kelola Produk</h1>
+          <h1 className="text-3xl font-heading font-bold">Kelola Produk</h1>
           <div className="flex gap-4">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate("/dashboard")}
               className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm"
             >
               Dashboard
             </button>
-            <button onClick={logout} className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm">
+            <button
+              onClick={logout}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm"
+            >
               Logout
             </button>
           </div>
@@ -26,9 +29,11 @@ export default function ProductsPage() {
 
       <div className="container mx-auto p-6">
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-          <div className="text-6xl mb-4">🚧</div>
+          <div className="text-6xl mb-4"></div>
           <h2 className="text-2xl font-bold mb-2">Coming Soon</h2>
-          <p className="text-gray-600">Halaman kelola produk sedang dalam pengembangan</p>
+          <p className="text-gray-600">
+            Bentar yak masih development ini buat admin ngatur product
+          </p>
         </div>
       </div>
     </div>

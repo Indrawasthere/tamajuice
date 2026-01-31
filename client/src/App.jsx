@@ -1,12 +1,13 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './store/authStore';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "./store/authStore";
 
 // Pages
-import LoginPage from './pages/LoginPage';
-import CounterPage from './pages/CounterPage';
-import DashboardPage from './pages/DashboardPage';
-import ProductsPage from './pages/ProductsPage';
-import OrdersPage from './pages/OrdersPage';
+import LoginPage from "./pages/LoginPage";
+import CounterPage from "./pages/CounterPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProductsPage from "./pages/ProductsPage";
+import OrdersPage from "./pages/OrdersPage";
+import ReportsPage from "./pages/ReportsPage";
 
 function PrivateRoute({ children }) {
   const { isAuthenticated } = useAuthStore();
@@ -17,7 +18,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
-      
+
       <Route
         path="/"
         element={
@@ -26,7 +27,7 @@ function App() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/dashboard"
         element={
@@ -35,7 +36,7 @@ function App() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/products"
         element={
@@ -44,12 +45,21 @@ function App() {
           </PrivateRoute>
         }
       />
-      
+
       <Route
         path="/orders"
         element={
           <PrivateRoute>
             <OrdersPage />
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/reports"
+        element={
+          <PrivateRoute>
+            <ReportsPage />
           </PrivateRoute>
         }
       />

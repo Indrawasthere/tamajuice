@@ -1,10 +1,252 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { useAuthStore } from "../store/authStore";
 import { formatRupiah } from "../lib/format";
 import api from "../lib/api";
 
+const NAV_ITEMS = [
+  { icon: "", label: "Counter", path: "/", activeColor: "#FDB913" },
+  {
+    icon: "",
+    label: "Dashboard",
+    path: "/dashboard",
+    activeColor: "#7A9B5E",
+  },
+  { icon: "", label: "Orders", path: "/orders", activeColor: "#60a5fa" },
+  { icon: "", label: "Products", path: "/products", activeColor: "#f97316" },
+  { icon: "", label: "Reports", path: "/reports", activeColor: "#a78bfa" },
+];
+
+function Sidebar({ currentPath }) {
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
+
+  return (
+    <div
+      style={{
+        width: 240,
+        minHeight: "100vh",
+        background:
+          "linear-gradient(180deg, #1a1a2e 0%, #16162a 50%, #0f0f1a 100%)",
+        display: "flex",
+        flexDirection: "column",
+        position: "fixed",
+        left: 0,
+        top: 0,
+        bottom: 0,
+        zIndex: 100,
+        boxShadow: "2px 0 20px rgba(0,0,0,0.3)",
+      }}
+    >
+      {/* Logo */}
+      <div
+        style={{
+          padding: "28px 20px 24px",
+          borderBottom: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 12,
+              background: "linear-gradient(135deg, #FDB913, #7A9B5E)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 22,
+              boxShadow: "0 4px 14px rgba(253,185,19,0.35)",
+            }}
+          ></div>
+          <div>
+            <div
+              style={{
+                color: "#fff",
+                fontSize: 15,
+                fontWeight: 700,
+                letterSpacing: "-0.3px",
+                fontFamily: "Inter, sans-serif",
+              }}
+            >
+              Jus Buah Tama
+            </div>
+            <div
+              style={{
+                color: "rgba(255,255,255,0.4)",
+                fontSize: 11,
+                fontWeight: 500,
+              }}
+            >
+              POS System
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Nav */}
+      <nav
+        style={{
+          flex: 1,
+          padding: "16px 12px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+        }}
+      >
+        {NAV_ITEMS.map((item) => {
+          const isActive = currentPath === item.path;
+          return (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "11px 14px",
+                borderRadius: 10,
+                border: "none",
+                background: isActive
+                  ? "linear-gradient(135deg, rgba(253,185,19,0.15), rgba(122,155,94,0.1))"
+                  : "transparent",
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+                position: "relative",
+                overflow: "hidden",
+              }}
+              onMouseEnter={(e) => {
+                if (!isActive)
+                  e.currentTarget.style.background = "rgba(255,255,255,0.06)";
+              }}
+              onMouseLeave={(e) => {
+                if (!isActive) e.currentTarget.style.background = "transparent";
+              }}
+            >
+              {isActive && (
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "20%",
+                    bottom: "20%",
+                    width: 3,
+                    borderRadius: "0 3px 3px 0",
+                    background: item.activeColor,
+                    boxShadow: `0 0 8px ${item.activeColor}55`,
+                  }}
+                />
+              )}
+              <span style={{ fontSize: 18, width: 22, textAlign: "center" }}>
+                {item.icon}
+              </span>
+              <span
+                style={{
+                  color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
+                  fontSize: 13.5,
+                  fontWeight: isActive ? 600 : 400,
+                  transition: "color 0.2s",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* User */}
+      <div
+        style={{
+          padding: "14px 12px 18px",
+          borderTop: "1px solid rgba(255,255,255,0.08)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginBottom: 10,
+          }}
+        >
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: "linear-gradient(135deg, #FDB913, #E63946)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#fff",
+              fontFamily: "Inter, sans-serif",
+            }}
+          >
+            {user?.name?.[0]?.toUpperCase() || "K"}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div
+              style={{
+                color: "#fff",
+                fontSize: 13,
+                fontWeight: 600,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {user?.name}
+            </div>
+            <div
+              style={{
+                color: "rgba(255,255,255,0.35)",
+                fontSize: 11,
+                textTransform: "capitalize",
+              }}
+            >
+              {user?.role?.toLowerCase()}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={logout}
+          style={{
+            width: "100%",
+            padding: "8px 12px",
+            borderRadius: 8,
+            border: "1px solid rgba(255,255,255,0.1)",
+            background: "rgba(255,255,255,0.04)",
+            color: "rgba(255,255,255,0.5)",
+            fontSize: 12,
+            cursor: "pointer",
+            transition: "all 0.2s",
+            fontFamily: "Inter, sans-serif",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = "rgba(239,68,68,0.15)";
+            e.currentTarget.style.color = "#ef4444";
+            e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.background = "rgba(255,255,255,0.04)";
+            e.currentTarget.style.color = "rgba(255,255,255,0.5)";
+            e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+          }}
+        >
+          Logout
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function CounterPage() {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -12,10 +254,13 @@ export default function CounterPage() {
   const [processing, setProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [amountPaid, setAmountPaid] = useState("");
+  const [orderSuccess, setOrderSuccess] = useState(null);
+  const [noteIndex, setNoteIndex] = useState(null);
+  const [noteText, setNoteText] = useState("");
 
   const { items, addItem, updateQuantity, removeItem, clearCart, getTotal } =
     useCartStore();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
 
   useEffect(() => {
     fetchData();
@@ -23,308 +268,968 @@ export default function CounterPage() {
 
   const fetchData = async () => {
     try {
-      const [productsRes, categoriesRes] = await Promise.all([
+      const [pRes, cRes] = await Promise.all([
         api.get("/products?isAvailable=true"),
         api.get("/categories"),
       ]);
-      setProducts(productsRes.data.data);
-      setCategories(categoriesRes.data.data);
-    } catch (error) {
-      console.error("Failed to fetch data:", error);
-      alert("Gagal memuat data");
+      setProducts(pRes.data.data);
+      setCategories(cRes.data.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredProducts =
+  const filtered =
     selectedCategory === "all"
       ? products
       : products.filter((p) => p.categoryId === selectedCategory);
 
+  const total = getTotal();
+  const paid = parseInt(amountPaid) || 0;
+  const change = paid - total;
+
   const handleCheckout = async () => {
-    if (items.length === 0) {
-      alert("Keranjang masih kosong!");
-      return;
-    }
-
-    const total = getTotal();
-    const paid = parseInt(amountPaid) || 0;
-
-    if (paid < total) {
-      alert("Jumlah bayar kurang!");
-      return;
-    }
-
+    if (!items.length) return;
+    if (paid < total) return;
     setProcessing(true);
     try {
-      const orderData = {
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-          notes: item.notes,
+      const res = await api.post("/orders", {
+        items: items.map((i) => ({
+          productId: i.product.id,
+          quantity: i.quantity,
+          notes: i.notes,
         })),
         paymentMethod,
         amountPaid: paid,
-        notes: "",
-      };
-
-      const response = await api.post("/orders", orderData);
-
-      // Print receipt
+      });
       try {
-        await api.post(`/orders/${response.data.data.id}/print`);
-      } catch (printError) {
-        console.error("Print failed:", printError);
-      }
-
-      alert(`Order berhasil! Kembalian: ${formatRupiah(paid - total)}`);
+        await api.post(`/orders/${res.data.data.id}/print`);
+      } catch (e) {}
+      setOrderSuccess({ orderNumber: res.data.data.orderNumber, change });
       clearCart();
       setAmountPaid("");
-    } catch (error) {
-      console.error("Checkout failed:", error);
-      alert(
-        "Gagal membuat order: " +
-          (error.response?.data?.message || "Unknown error"),
-      );
+      setTimeout(() => setOrderSuccess(null), 4000);
+    } catch (err) {
+      alert("Gagal: " + (err.response?.data?.message || "Unknown error"));
     } finally {
       setProcessing(false);
     }
   };
 
-  const quickAmounts = [20000, 50000, 100000];
+  const saveNote = () => {
+    if (noteIndex !== null) {
+      const newItems = [...items];
+      newItems[noteIndex].notes = noteText;
+      // trigger zustand update via remove+add workaround — we use updateNotes from store
+      // Actually let's just call the store's notes function
+      // For simplicity we patch directly
+      useCartStore.setState({ items: newItems });
+      setNoteIndex(null);
+      setNoteText("");
+    }
+  };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-yellow via-primary-green to-primary-yellow">
-        <div className="text-2xl font-heading text-white">Loading...</div>
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#0f0f1a",
+        }}
+      >
+        <div
+          style={{
+            color: "#FDB913",
+            fontSize: 28,
+            fontWeight: 700,
+            fontFamily: "Inter, sans-serif",
+          }}
+        >
+          Loading...
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-green-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-primary-yellow to-primary-green text-white p-4 shadow-lg">
-        <div className="container mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-heading font-bold">Jus Buah Tama</h1>
-            <p className="text-sm opacity-90">Fresh juice everyday</p>
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="text-sm">Kasir: {user?.name}</span>
-            <button
-              onClick={logout}
-              className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition"
+    <div
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        background: "#f3f4f6",
+        fontFamily: "Inter, sans-serif",
+      }}
+    >
+      <Sidebar currentPath="/" />
+
+      {/* Main */}
+      <div
+        style={{
+          marginLeft: 240,
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+        }}
+      >
+        {/* Top Bar */}
+        <div
+          style={{
+            height: 64,
+            background: "#fff",
+            borderBottom: "1px solid #e5e7eb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 28px",
+            position: "sticky",
+            top: 0,
+            zIndex: 50,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <h1
+              style={{
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#1a1a2e",
+                fontFamily: "Inter, sans-serif",
+                margin: 0,
+              }}
             >
-              Logout
-            </button>
+              Counter
+            </h1>
+            <span
+              style={{
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#7A9B5E",
+                background: "#eef5ec",
+                padding: "3px 10px",
+                borderRadius: 20,
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Live
+            </span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ color: "#6b7280", fontSize: 13 }}>
+              {new Date().toLocaleDateString("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+              })}
+            </span>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto p-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Products Section */}
-          <div className="lg:col-span-2">
-            {/* Category Filter */}
-            <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-              <button
-                onClick={() => setSelectedCategory("all")}
-                className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
-                  selectedCategory === "all"
-                    ? "bg-primary-yellow text-white"
-                    : "bg-white text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                Semua
-              </button>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap transition ${
-                    selectedCategory === cat.id
-                      ? "bg-primary-yellow text-white"
-                      : "bg-white text-gray-700 hover:bg-gray-100"
-                  }`}
-                >
-                  {cat.icon} {cat.name}
-                </button>
-              ))}
+        <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+          {/* Products */}
+          <div style={{ flex: 1, padding: 24, overflowY: "auto" }}>
+            {/* Category Pills */}
+            <div
+              style={{
+                display: "flex",
+                gap: 8,
+                marginBottom: 20,
+                flexWrap: "wrap",
+              }}
+            >
+              {[{ id: "all", name: "Semua", icon: "" }, ...categories].map(
+                (cat) => {
+                  const isActive = selectedCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      onClick={() => setSelectedCategory(cat.id)}
+                      style={{
+                        padding: "8px 18px",
+                        borderRadius: 24,
+                        border: isActive ? "none" : "1.5px solid #e5e7eb",
+                        background: isActive
+                          ? "linear-gradient(135deg, #FDB913, #7A9B5E)"
+                          : "#fff",
+                        color: isActive ? "#fff" : "#6b7280",
+                        fontSize: 13,
+                        fontWeight: isActive ? 600 : 500,
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                        boxShadow: isActive
+                          ? "0 4px 12px rgba(253,185,19,0.3)"
+                          : "0 1px 3px rgba(0,0,0,0.06)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                      }}
+                    >
+                      <span>{cat.icon || ""}</span> {cat.name}
+                    </button>
+                  );
+                },
+              )}
             </div>
 
-            {/* Products Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {filteredProducts.map((product) => (
+            {/* Product Grid */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))",
+                gap: 14,
+              }}
+            >
+              {filtered.map((product) => (
                 <button
                   key={product.id}
                   onClick={() => addItem(product, 1)}
-                  className="bg-white rounded-xl p-4 shadow-md hover:shadow-xl transition transform hover:scale-105 text-left"
+                  style={{
+                    background: "#fff",
+                    borderRadius: 16,
+                    border: "1.5px solid #f0f0f0",
+                    padding: "18px 16px 16px",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-3px)";
+                    e.currentTarget.style.boxShadow =
+                      "0 8px 24px rgba(253,185,19,0.2)";
+                    e.currentTarget.style.borderColor = "#FDB913";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow =
+                      "0 2px 8px rgba(0,0,0,0.06)";
+                    e.currentTarget.style.borderColor = "#f0f0f0";
+                  }}
                 >
-                  <div className="text-2xl mb-2">{product.category.icon}</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">
+                  {/* Color accent top */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 4,
+                      background: "linear-gradient(90deg, #FDB913, #7A9B5E)",
+                    }}
+                  />
+
+                  <div
+                    style={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: 14,
+                      background: "linear-gradient(135deg, #FFF8E1, #E8F5E9)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 24,
+                      marginBottom: 12,
+                    }}
+                  >
+                    {product.category?.icon || ""}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 13.5,
+                      fontWeight: 600,
+                      color: "#1a1a2e",
+                      marginBottom: 4,
+                      lineHeight: 1.3,
+                    }}
+                  >
                     {product.name}
-                  </h3>
-                  <p className="text-primary-yellow font-bold font-mono">
+                  </div>
+                  {product.description && (
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "#9ca3af",
+                        marginBottom: 8,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {product.description}
+                    </div>
+                  )}
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: "#FDB913",
+                      fontFamily: "JetBrains Mono, monospace",
+                      marginTop: "auto",
+                    }}
+                  >
                     {formatRupiah(product.price)}
-                  </p>
+                  </div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Cart Section */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-lg p-4 sticky top-4">
-              <h2 className="text-xl font-heading font-bold mb-4">Pesanan</h2>
+          {/* Cart Panel */}
+          <div
+            style={{
+              width: 340,
+              background: "#fff",
+              borderLeft: "1px solid #e5e7eb",
+              display: "flex",
+              flexDirection: "column",
+              position: "sticky",
+              top: 64,
+              height: "calc(100vh - 64px)",
+            }}
+          >
+            {/* Cart Header */}
+            <div
+              style={{
+                padding: "18px 20px 14px",
+                borderRadius: 10,
+                borderBottom: "1px solid #f0f0f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <h2
+                  style={{
+                    margin: 0,
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: "#1a1a2e",
+                    fontFamily: "Inter, sans-serif",
+                  }}
+                >
+                  Pesanan
+                </h2>
+                {items.length > 0 && (
+                  <span
+                    style={{
+                      background: "#FDB913",
+                      color: "#fff",
+                      fontSize: 11,
+                      fontWeight: 700,
+                      padding: "2px 8px",
+                      borderRadius: 12,
+                      fontFamily: "JetBrains Mono, monospace",
+                    }}
+                  >
+                    {items.reduce((s, i) => s + i.quantity, 0)}
+                  </span>
+                )}
+              </div>
+              {items.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#ef4444",
+                    fontSize: 12,
+                    cursor: "pointer",
+                    fontWeight: 500,
+                    padding: "4px 8px",
+                    borderRadius: 6,
+                    transition: "background 0.15s",
+                  }}
+                  onMouseEnter={(e) =>
+                    (e.currentTarget.style.background = "#fef2f2")
+                  }
+                  onMouseLeave={(e) =>
+                    (e.currentTarget.style.background = "transparent")
+                  }
+                >
+                  Hapus Semua
+                </button>
+              )}
+            </div>
 
+            {/* Cart Items */}
+            <div style={{ flex: 1, overflowY: "auto", padding: "10px 16px" }}>
               {items.length === 0 ? (
-                <div className="text-center py-8 text-gray-400">
-                  <p>Belum ada pesanan</p>
+                <div
+                  style={{
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 12,
+                    color: "#9ca3af",
+                    paddingTop: 40,
+                  }}
+                >
+                  <div style={{ fontSize: 48, opacity: 0.4 }}>🛒</div>
+                  <div style={{ fontSize: 14, fontWeight: 500 }}>
+                    Keranjang kosong
+                  </div>
+                  <div style={{ fontSize: 12 }}>Pilih produk untuk mulai</div>
                 </div>
               ) : (
-                <div className="space-y-3 mb-4 max-h-64 overflow-y-auto">
-                  {items.map((item, index) => (
+                items.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      padding: "10px 0",
+                      borderBottom:
+                        idx < items.length - 1 ? "1px solid #f3f4f6" : "none",
+                    }}
+                  >
                     <div
-                      key={index}
-                      className="flex items-start gap-2 border-b pb-2"
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: 10,
+                      }}
                     >
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">
-                          {item.product.name}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {formatRupiah(item.product.price)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() =>
-                            updateQuantity(index, item.quantity - 1)
-                          }
-                          className="w-6 h-6 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: 13.5,
+                            fontWeight: 600,
+                            color: "#1a1a2e",
+                            whiteSpace: "nowrap",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                          }}
                         >
-                          -
+                          {item.product.name}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#9ca3af",
+                            marginTop: 2,
+                          }}
+                        >
+                          {formatRupiah(item.product.price)} × {item.quantity} ={" "}
+                          <span style={{ color: "#FDB913", fontWeight: 600 }}>
+                            {formatRupiah(item.product.price * item.quantity)}
+                          </span>
+                        </div>
+                        {item.notes && (
+                          <div
+                            style={{
+                              fontSize: 11,
+                              color: "#7A9B5E",
+                              marginTop: 3,
+                              background: "#eef5ec",
+                              padding: "2px 8px",
+                              borderRadius: 6,
+                              display: "inline-block",
+                            }}
+                          >
+                            {item.notes}
+                          </div>
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 4,
+                        }}
+                      >
+                        <button
+                          onClick={() => updateQuantity(idx, item.quantity - 1)}
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: 8,
+                            border: "1.5px solid #e5e7eb",
+                            background: "#fff",
+                            color: "#6b7280",
+                            fontSize: 16,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.15s",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#E63946";
+                            e.currentTarget.style.color = "#E63946";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "#e5e7eb";
+                            e.currentTarget.style.color = "#6b7280";
+                          }}
+                        >
+                          −
                         </button>
-                        <span className="w-8 text-center font-mono">
+                        <span
+                          style={{
+                            width: 24,
+                            textAlign: "center",
+                            fontSize: 14,
+                            fontWeight: 700,
+                            color: "#1a1a2e",
+                            fontFamily: "JetBrains Mono, monospace",
+                          }}
+                        >
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() =>
-                            updateQuantity(index, item.quantity + 1)
-                          }
-                          className="w-6 h-6 rounded bg-gray-200 hover:bg-gray-300 text-sm"
+                          onClick={() => updateQuantity(idx, item.quantity + 1)}
+                          style={{
+                            width: 28,
+                            height: 28,
+                            borderRadius: 8,
+                            border: "1.5px solid #e5e7eb",
+                            background: "#fff",
+                            color: "#6b7280",
+                            fontSize: 16,
+                            fontWeight: 600,
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.15s",
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = "#7A9B5E";
+                            e.currentTarget.style.color = "#7A9B5E";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = "#e5e7eb";
+                            e.currentTarget.style.color = "#6b7280";
+                          }}
                         >
                           +
                         </button>
-                        <button
-                          onClick={() => removeItem(index)}
-                          className="ml-1 text-red-500 hover:text-red-700 text-xs"
-                        >
-                          ✕
-                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {items.length > 0 && (
-                <>
-                  <div className="border-t pt-4 mb-4">
-                    <div className="flex justify-between items-center mb-4">
-                      <span className="text-lg font-bold">TOTAL</span>
-                      <span className="text-2xl font-bold font-mono text-primary-yellow">
-                        {formatRupiah(getTotal())}
-                      </span>
-                    </div>
-
-                    {/* Payment Method */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-2">
-                        Metode Pembayaran
-                      </label>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setPaymentMethod("CASH")}
-                          className={`flex-1 py-2 rounded-lg font-medium transition ${
-                            paymentMethod === "CASH"
-                              ? "bg-primary-yellow text-white"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          Cash
-                        </button>
-                        <button
-                          onClick={() => setPaymentMethod("QRIS")}
-                          className={`flex-1 py-2 rounded-lg font-medium transition ${
-                            paymentMethod === "QRIS"
-                              ? "bg-primary-yellow text-white"
-                              : "bg-gray-100 text-gray-700"
-                          }`}
-                        >
-                          QRIS
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Amount Paid */}
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium mb-2">
-                        Jumlah Bayar
-                      </label>
-                      <input
-                        type="number"
-                        value={amountPaid}
-                        onChange={(e) => setAmountPaid(e.target.value)}
-                        className="w-full px-4 py-2 border rounded-lg font-mono text-lg"
-                        placeholder="0"
-                      />
-                      <div className="flex gap-2 mt-2">
-                        {quickAmounts.map((amount) => (
-                          <button
-                            key={amount}
-                            onClick={() => setAmountPaid(amount.toString())}
-                            className="flex-1 py-1 bg-gray-100 hover:bg-gray-200 rounded text-sm"
-                          >
-                            {formatRupiah(amount)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Change */}
-                    {amountPaid && parseInt(amountPaid) >= getTotal() && (
-                      <div className="mb-4 p-3 bg-green-50 rounded-lg">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">Kembalian</span>
-                          <span className="text-lg font-bold text-green-600">
-                            {formatRupiah(parseInt(amountPaid) - getTotal())}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Checkout Button */}
+                    {/* Note button */}
                     <button
-                      onClick={handleCheckout}
-                      disabled={
-                        processing ||
-                        !amountPaid ||
-                        parseInt(amountPaid) < getTotal()
+                      onClick={() => {
+                        setNoteIndex(idx);
+                        setNoteText(item.notes || "");
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        padding: "3px 0 0",
+                        color: "#9ca3af",
+                        fontSize: 11,
+                        cursor: "pointer",
+                        fontWeight: 500,
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = "#7A9B5E")
                       }
-                      className="w-full bg-gradient-to-r from-primary-yellow to-primary-green text-white py-3 rounded-lg font-bold text-lg hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = "#9ca3af")
+                      }
                     >
-                      {processing ? "Memproses..." : "CHECKOUT & CETAK"}
+                      + Tambah catatan
                     </button>
                   </div>
-                </>
+                ))
               )}
             </div>
+
+            {/* Note Modal Inline */}
+            {noteIndex !== null && (
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.4)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 200,
+                }}
+              >
+                <div
+                  style={{
+                    background: "#fff",
+                    borderRadius: 16,
+                    padding: 24,
+                    width: 280,
+                    boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <h3
+                    style={{
+                      margin: "0 0 4px",
+                      fontSize: 15,
+                      fontWeight: 700,
+                      color: "#1a1a2e",
+                      fontFamily: "Inter, sans-serif",
+                    }}
+                  >
+                    Catatan
+                  </h3>
+                  <p
+                    style={{
+                      margin: "0 0 12px",
+                      fontSize: 12,
+                      color: "#9ca3af",
+                    }}
+                  >
+                    {items[noteIndex]?.product?.name}
+                  </p>
+                  <textarea
+                    value={noteText}
+                    onChange={(e) => setNoteText(e.target.value)}
+                    placeholder="Misal: tanpa gula, es batu extra..."
+                    style={{
+                      width: "100%",
+                      height: 80,
+                      borderRadius: 10,
+                      border: "1.5px solid #e5e7eb",
+                      padding: "10px 12px",
+                      fontSize: 13,
+                      resize: "none",
+                      outline: "none",
+                      fontFamily: "Inter, sans-serif",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
+                    <button
+                      onClick={saveNote}
+                      style={{
+                        flex: 1,
+                        padding: "8px 0",
+                        borderRadius: 10,
+                        border: "none",
+                        background: "linear-gradient(135deg, #FDB913, #7A9B5E)",
+                        color: "#fff",
+                        fontSize: 13,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Simpan
+                    </button>
+                    <button
+                      onClick={() => setNoteIndex(null)}
+                      style={{
+                        flex: 1,
+                        padding: "8px 0",
+                        borderRadius: 10,
+                        border: "1.5px solid #e5e7eb",
+                        background: "#fff",
+                        color: "#6b7280",
+                        fontSize: 13,
+                        fontWeight: 500,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Batal
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Payment & Total */}
+            {items.length > 0 && (
+              <div style={{ borderTop: "1px solid #f0f0f0", padding: "16px" }}>
+                {/* Total */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: 14,
+                    padding: "10px 12px",
+                    borderRadius: 10,
+                    background: "linear-gradient(135deg, #FFF8E1, #E8F5E9)",
+                  }}
+                >
+                  <span
+                    style={{ fontSize: 14, fontWeight: 600, color: "#1a1a2e" }}
+                  >
+                    Total
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 20,
+                      fontWeight: 800,
+                      color: "#FDB913",
+                      fontFamily: "JetBrains Mono, monospace",
+                    }}
+                  >
+                    {formatRupiah(total)}
+                  </span>
+                </div>
+
+                {/* Payment Method */}
+                <div style={{ marginBottom: 12 }}>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Metode Pembayaran
+                  </div>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {["CASH", "QRIS"].map((method) => (
+                      <button
+                        key={method}
+                        onClick={() => setPaymentMethod(method)}
+                        style={{
+                          flex: 1,
+                          padding: "9px 0",
+                          borderRadius: 10,
+                          border:
+                            paymentMethod === method
+                              ? "none"
+                              : "1.5px solid #e5e7eb",
+                          background:
+                            paymentMethod === method
+                              ? "linear-gradient(135deg, #FDB913, #7A9B5E)"
+                              : "#fff",
+                          color: paymentMethod === method ? "#fff" : "#6b7280",
+                          fontSize: 13,
+                          fontWeight: paymentMethod === method ? 600 : 500,
+                          cursor: "pointer",
+                          transition: "all 0.2s",
+                          boxShadow:
+                            paymentMethod === method
+                              ? "0 3px 10px rgba(253,185,19,0.3)"
+                              : "none",
+                        }}
+                      >
+                        {method === "CASH" ? "" : ""} {method}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Amount Input */}
+                <div style={{ marginBottom: 10 }}>
+                  <div
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: "#9ca3af",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      marginBottom: 6,
+                    }}
+                  >
+                    Jumlah Bayar
+                  </div>
+                  <input
+                    type="number"
+                    value={amountPaid}
+                    onChange={(e) => setAmountPaid(e.target.value)}
+                    placeholder="0"
+                    style={{
+                      width: "100%",
+                      padding: "10px 12px",
+                      borderRadius: 10,
+                      border: "1.5px solid #e5e7eb",
+                      fontSize: 18,
+                      fontWeight: 700,
+                      fontFamily: "JetBrains Mono, monospace",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      color: "#1a1a2e",
+                    }}
+                  />
+                  <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+                    {[10000, 20000, 50000, 100000].map((amt) => (
+                      <button
+                        key={amt}
+                        onClick={() => setAmountPaid(amt.toString())}
+                        style={{
+                          flex: 1,
+                          padding: "5px 2px",
+                          borderRadius: 8,
+                          border: "1px solid #e5e7eb",
+                          background: "#f9fafb",
+                          color: "#6b7280",
+                          fontSize: 10.5,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "all 0.15s",
+                          fontFamily: "JetBrains Mono, monospace",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#FFF8E1";
+                          e.currentTarget.style.borderColor = "#FDB913";
+                          e.currentTarget.style.color = "#FDB913";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "#f9fafb";
+                          e.currentTarget.style.borderColor = "#e5e7eb";
+                          e.currentTarget.style.color = "#6b7280";
+                        }}
+                      >
+                        {formatRupiah(amt).replace("Rp", "")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Change */}
+                {paid >= total && paid > 0 && (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "8px 12px",
+                      borderRadius: 10,
+                      background: change === 0 ? "#eef5ec" : "#fef3c7",
+                      marginBottom: 12,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: change === 0 ? "#7A9B5E" : "#92400e",
+                      }}
+                    >
+                      {change === 0 ? "✓ Pas" : "Kembalian"}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 700,
+                        color: change === 0 ? "#7A9B5E" : "#92400e",
+                        fontFamily: "JetBrains Mono, monospace",
+                      }}
+                    >
+                      {formatRupiah(change)}
+                    </span>
+                  </div>
+                )}
+
+                {/* Checkout */}
+                <button
+                  onClick={handleCheckout}
+                  disabled={processing || paid < total || !amountPaid}
+                  style={{
+                    width: "100%",
+                    padding: "13px 0",
+                    borderRadius: 12,
+                    border: "none",
+                    background:
+                      processing || paid < total || !amountPaid
+                        ? "#d1d5db"
+                        : "linear-gradient(135deg, #FDB913, #7A9B5E)",
+                    color: "#fff",
+                    fontSize: 15,
+                    fontWeight: 700,
+                    cursor:
+                      processing || paid < total || !amountPaid
+                        ? "not-allowed"
+                        : "pointer",
+                    transition: "all 0.2s",
+                    letterSpacing: "0.3px",
+                    boxShadow:
+                      processing || paid < total || !amountPaid
+                        ? "none"
+                        : "0 4px 16px rgba(253,185,19,0.35)",
+                    fontFamily: "Inter, sans-serif",
+                  }}
+                >
+                  {processing ? "Memproses..." : "CHECKOUT & CETAK"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Success Toast */}
+      {orderSuccess && (
+        <div
+          style={{
+            position: "fixed",
+            top: 24,
+            right: 24,
+            zIndex: 999,
+            background: "#fff",
+            borderRadius: 16,
+            padding: "18px 24px",
+            boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
+            border: "1px solid #d1fae5",
+            maxWidth: 320,
+            animation: "slideIn 0.3s ease",
+            display: "flex",
+            gap: 14,
+            alignItems: "flex-start",
+          }}
+        >
+          <div
+            style={{
+              width: 42,
+              height: 42,
+              borderRadius: 12,
+              background: "linear-gradient(135deg, #7A9B5E, #4ade80)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 20,
+              flexShrink: 0,
+            }}
+          >
+            ✅
+          </div>
+          <div>
+            <div
+              style={{
+                fontSize: 14,
+                fontWeight: 700,
+                color: "#1a1a2e",
+                fontFamily: "Inter, sans-serif",
+              }}
+            >
+              Order Berhasil !
+            </div>
+            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 3 }}>
+              No: <strong>{orderSuccess.orderNumber}</strong>
+            </div>
+            <div style={{ fontSize: 12, color: "#6b7280" }}>
+              Kembalian:{" "}
+              <strong style={{ color: "#7A9B5E" }}>
+                {formatRupiah(orderSuccess.change)}
+              </strong>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+      `}</style>
     </div>
   );
 }

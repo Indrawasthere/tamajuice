@@ -115,7 +115,7 @@ export async function printReceipt(order) {
     printer.alignCenter();
     printer.newLine();
     printer.println("Terima kasih!");
-    printer.println("Sehat selalu! 🍹");
+    printer.println("Sehat selalu!");
     printer.newLine();
     printer.newLine();
     printer.newLine();
