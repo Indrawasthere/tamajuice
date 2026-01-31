@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { useAuthStore } from '../store/authStore';
-import { formatRupiah } from '../lib/format';
-import api from '../lib/api';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useAuthStore } from "../store/authStore";
+import { formatRupiah } from "../lib/format";
+import api from "../lib/api";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
@@ -16,17 +16,21 @@ export default function DashboardPage() {
 
   const fetchStats = async () => {
     try {
-      const response = await api.get('/analytics/dashboard');
+      const response = await api.get("/analytics/dashboard");
       setStats(response.data.data);
     } catch (error) {
-      console.error('Failed to fetch stats:', error);
+      console.error("Failed to fetch stats:", error);
     } finally {
       setLoading(false);
     }
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
   }
 
   return (
@@ -35,12 +39,12 @@ export default function DashboardPage() {
       <div className="bg-gradient-to-r from-primary-yellow to-primary-green text-white p-4 shadow-lg">
         <div className="container mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-heading font-bold">📊 Dashboard Admin</h1>
+            <h1 className="text-3xl font-heading font-bold">Dashboard Admin</h1>
             <p className="text-sm opacity-90">Jus Buah Tama</p>
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-sm transition"
             >
               Counter
@@ -64,7 +68,9 @@ export default function DashboardPage() {
             <p className="text-3xl font-bold text-primary-yellow mb-1">
               {formatRupiah(stats?.today?.revenue || 0)}
             </p>
-            <p className="text-sm text-gray-600">{stats?.today?.orders || 0} transaksi</p>
+            <p className="text-sm text-gray-600">
+              {stats?.today?.orders || 0} transaksi
+            </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
@@ -72,7 +78,9 @@ export default function DashboardPage() {
             <p className="text-3xl font-bold text-primary-green mb-1">
               {formatRupiah(stats?.thisMonth?.revenue || 0)}
             </p>
-            <p className="text-sm text-gray-600">{stats?.thisMonth?.orders || 0} transaksi</p>
+            <p className="text-sm text-gray-600">
+              {stats?.thisMonth?.orders || 0} transaksi
+            </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
@@ -80,7 +88,9 @@ export default function DashboardPage() {
             <p className="text-3xl font-bold text-gray-800 mb-1">
               {formatRupiah(stats?.allTime?.revenue || 0)}
             </p>
-            <p className="text-sm text-gray-600">{stats?.allTime?.orders || 0} transaksi</p>
+            <p className="text-sm text-gray-600">
+              {stats?.allTime?.orders || 0} transaksi
+            </p>
           </div>
         </div>
 
@@ -89,21 +99,21 @@ export default function DashboardPage() {
           <h2 className="text-xl font-heading font-bold mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <button
-              onClick={() => navigate('/orders')}
+              onClick={() => navigate("/orders")}
               className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg hover:shadow-md transition text-left"
             >
               <div className="text-2xl mb-2">📋</div>
               <p className="font-semibold text-sm">Lihat Orders</p>
             </button>
             <button
-              onClick={() => navigate('/products')}
+              onClick={() => navigate("/products")}
               className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg hover:shadow-md transition text-left"
             >
               <div className="text-2xl mb-2">🍊</div>
               <p className="font-semibold text-sm">Kelola Produk</p>
             </button>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               className="p-4 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg hover:shadow-md transition text-left"
             >
               <div className="text-2xl mb-2">💰</div>
