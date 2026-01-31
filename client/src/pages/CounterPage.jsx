@@ -18,233 +18,6 @@ const NAV_ITEMS = [
   { icon: "", label: "Reports", path: "/reports", activeColor: "#a78bfa" },
 ];
 
-function Sidebar({ currentPath }) {
-  const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
-
-  return (
-    <div
-      style={{
-        width: 240,
-        minHeight: "100vh",
-        background:
-          "linear-gradient(180deg, #1a1a2e 0%, #16162a 50%, #0f0f1a 100%)",
-        display: "flex",
-        flexDirection: "column",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 100,
-        boxShadow: "2px 0 20px rgba(0,0,0,0.3)",
-      }}
-    >
-      {/* Logo */}
-      <div
-        style={{
-          padding: "28px 20px 24px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, #FDB913, #7A9B5E)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 22,
-              boxShadow: "0 4px 14px rgba(253,185,19,0.35)",
-            }}
-          ></div>
-          <div>
-            <div
-              style={{
-                color: "#fff",
-                fontSize: 15,
-                fontWeight: 700,
-                letterSpacing: "-0.3px",
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
-              Jus Buah Tama
-            </div>
-            <div
-              style={{
-                color: "rgba(255,255,255,0.4)",
-                fontSize: 11,
-                fontWeight: 500,
-              }}
-            >
-              POS System
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav
-        style={{
-          flex: 1,
-          padding: "16px 12px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
-        {NAV_ITEMS.map((item) => {
-          const isActive = currentPath === item.path;
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "11px 14px",
-                borderRadius: 10,
-                border: "none",
-                background: isActive
-                  ? "linear-gradient(135deg, rgba(253,185,19,0.15), rgba(122,155,94,0.1))"
-                  : "transparent",
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-                position: "relative",
-                overflow: "hidden",
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive)
-                  e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.background = "transparent";
-              }}
-            >
-              {isActive && (
-                <div
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: "20%",
-                    bottom: "20%",
-                    width: 3,
-                    borderRadius: "0 3px 3px 0",
-                    background: item.activeColor,
-                    boxShadow: `0 0 8px ${item.activeColor}55`,
-                  }}
-                />
-              )}
-              <span style={{ fontSize: 18, width: 22, textAlign: "center" }}>
-                {item.icon}
-              </span>
-              <span
-                style={{
-                  color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
-                  fontSize: 13.5,
-                  fontWeight: isActive ? 600 : 400,
-                  transition: "color 0.2s",
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-
-      {/* User */}
-      <div
-        style={{
-          padding: "14px 12px 18px",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 10,
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #FDB913, #E63946)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 15,
-              fontWeight: 700,
-              color: "#fff",
-              fontFamily: "Inter, sans-serif",
-            }}
-          >
-            {user?.name?.[0]?.toUpperCase() || "K"}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                color: "#fff",
-                fontSize: 13,
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {user?.name}
-            </div>
-            <div
-              style={{
-                color: "rgba(255,255,255,0.35)",
-                fontSize: 11,
-                textTransform: "capitalize",
-              }}
-            >
-              {user?.role?.toLowerCase()}
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={logout}
-          style={{
-            width: "100%",
-            padding: "8px 12px",
-            borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "rgba(255,255,255,0.04)",
-            color: "rgba(255,255,255,0.5)",
-            fontSize: 12,
-            cursor: "pointer",
-            transition: "all 0.2s",
-            fontFamily: "Inter, sans-serif",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(239,68,68,0.15)";
-            e.currentTarget.style.color = "#ef4444";
-            e.currentTarget.style.borderColor = "rgba(239,68,68,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-            e.currentTarget.style.color = "rgba(255,255,255,0.5)";
-            e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export default function CounterPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -253,10 +26,12 @@ export default function CounterPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("CASH");
-  const [amountPaid, setAmountPaid] = useState("");
+  const [amountPaid, setAmountPaid] = useState(0);
   const [orderSuccess, setOrderSuccess] = useState(null);
   const [noteIndex, setNoteIndex] = useState(null);
   const [noteText, setNoteText] = useState("");
+  const [currentTime, setCurrentTime] = useState("");
+  const [amountDisplay, setAmountDisplay] = useState("");
 
   const { items, addItem, updateQuantity, removeItem, clearCart, getTotal } =
     useCartStore();
@@ -287,7 +62,7 @@ export default function CounterPage() {
       : products.filter((p) => p.categoryId === selectedCategory);
 
   const total = getTotal();
-  const paid = parseInt(amountPaid) || 0;
+  const paid = amountPaid;
   const change = paid - total;
 
   const handleCheckout = async () => {
@@ -308,8 +83,13 @@ export default function CounterPage() {
         await api.post(`/orders/${res.data.data.id}/print`);
       } catch (e) {}
       setOrderSuccess({ orderNumber: res.data.data.orderNumber, change });
+
+      // RESET SEMUA STATE DI SINI:
       clearCart();
-      setAmountPaid("");
+      setAmountPaid(0); // Reset amountPaid ke 0
+      setAmountDisplay(""); // Reset display ke kosong
+      setPaymentMethod("CASH"); // Reset payment method ke default
+
       setTimeout(() => setOrderSuccess(null), 4000);
     } catch (err) {
       alert("Gagal: " + (err.response?.data?.message || "Unknown error"));
@@ -322,39 +102,50 @@ export default function CounterPage() {
     if (noteIndex !== null) {
       const newItems = [...items];
       newItems[noteIndex].notes = noteText;
-      // trigger zustand update via remove+add workaround — we use updateNotes from store
-      // Actually let's just call the store's notes function
-      // For simplicity we patch directly
       useCartStore.setState({ items: newItems });
       setNoteIndex(null);
       setNoteText("");
     }
   };
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#0f0f1a",
-        }}
-      >
-        <div
-          style={{
-            color: "#FDB913",
-            fontSize: 28,
-            fontWeight: 700,
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          Loading...
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("id-ID", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: "Asia/Jakarta",
+      });
+      setCurrentTime(timeStr);
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Tambah function ini di dalam CounterPage component (sebelum return):
+  const formatCurrencyInput = (value) => {
+    // Hapus semua karakter non-digit
+    const numeric = value.replace(/\D/g, "");
+
+    // Convert ke number
+    const num = parseInt(numeric || "0");
+    setAmountPaid(num);
+
+    // Format untuk display dengan pemisah ribuan
+    if (num === 0) {
+      setAmountDisplay("");
+    } else {
+      setAmountDisplay(num.toLocaleString("id-ID"));
+    }
+  };
+
+  const handleQuickAmount = (amount) => {
+    setAmountPaid(amount);
+    setAmountDisplay(amount.toLocaleString("id-ID"));
+  };
 
   return (
     <div
@@ -365,12 +156,9 @@ export default function CounterPage() {
         fontFamily: "Inter, sans-serif",
       }}
     >
-      <Sidebar currentPath="/" />
-
       {/* Main */}
       <div
         style={{
-          marginLeft: 240,
           flex: 1,
           display: "flex",
           flexDirection: "column",
@@ -419,14 +207,47 @@ export default function CounterPage() {
               Live
             </span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ color: "#6b7280", fontSize: 13 }}>
-              {new Date().toLocaleDateString("id-ID", {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })}
-            </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ color: "#6b7280", fontSize: 13 }}>
+                {new Date().toLocaleDateString("id-ID", {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })}
+              </span>
+              <span style={{ color: "#FDB913", fontSize: 13, fontWeight: 600 }}>
+                {currentTime} WIB
+              </span>
+            </div>
+
+            <button
+              onClick={() => useAuthStore.getState().logout()}
+              style={{
+                padding: "6px 14px",
+                borderRadius: 8,
+                border: "1px solid #e5e7eb",
+                background: "#fff",
+                color: "#ef4444",
+                fontSize: 12,
+                fontWeight: 500,
+                cursor: "pointer",
+                transition: "all 0.2s",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "#fef2f2";
+                e.currentTarget.style.borderColor = "#fecaca";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "#fff";
+                e.currentTarget.style.borderColor = "#e5e7eb";
+              }}
+            >
+              Logout
+            </button>
           </div>
         </div>
 
@@ -450,7 +271,7 @@ export default function CounterPage() {
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.id)}
                       style={{
-                        padding: "8px 18px",
+                        padding: "12px 24px",
                         borderRadius: 24,
                         border: isActive ? "none" : "1.5px solid #e5e7eb",
                         background: isActive
@@ -458,7 +279,7 @@ export default function CounterPage() {
                           : "#fff",
                         color: isActive ? "#fff" : "#6b7280",
                         fontSize: 13,
-                        fontWeight: isActive ? 600 : 500,
+                        fontWeight: isActive ? 700 : 600,
                         cursor: "pointer",
                         transition: "all 0.2s",
                         boxShadow: isActive
@@ -480,8 +301,8 @@ export default function CounterPage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(175px, 1fr))",
-                gap: 14,
+                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                gap: 20,
               }}
             >
               {filtered.map((product) => (
@@ -492,13 +313,17 @@ export default function CounterPage() {
                     background: "#fff",
                     borderRadius: 16,
                     border: "1.5px solid #f0f0f0",
-                    padding: "18px 16px 16px",
+                    padding: "24px 20px 20px",
                     cursor: "pointer",
                     textAlign: "left",
                     transition: "all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
                     boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
                     position: "relative",
                     overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    minHeight: 180,
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-3px)";
@@ -542,11 +367,12 @@ export default function CounterPage() {
                   </div>
                   <div
                     style={{
-                      fontSize: 13.5,
-                      fontWeight: 600,
+                      fontSize: 16,
+                      fontWeight: 700,
                       color: "#1a1a2e",
-                      marginBottom: 4,
+                      marginBottom: 8,
                       lineHeight: 1.3,
+                      flex: 1,
                     }}
                   >
                     {product.name}
@@ -565,11 +391,13 @@ export default function CounterPage() {
                   )}
                   <div
                     style={{
-                      fontSize: 15,
-                      fontWeight: 700,
+                      fontSize: 20,
+                      fontWeight: 800,
                       color: "#FDB913",
                       fontFamily: "JetBrains Mono, monospace",
                       marginTop: "auto",
+                      paddingTop: 8,
+                      borderTop: "2px dashed #f0f0f0",
                     }}
                   >
                     {formatRupiah(product.price)}
@@ -582,7 +410,7 @@ export default function CounterPage() {
           {/* Cart Panel */}
           <div
             style={{
-              width: 340,
+              width: 400,
               background: "#fff",
               borderLeft: "1px solid #e5e7eb",
               display: "flex",
@@ -590,6 +418,7 @@ export default function CounterPage() {
               position: "sticky",
               top: 64,
               height: "calc(100vh - 64px)",
+              boxShadow: "-4px 0 20px rgba(0,0,0,0.05)",
             }}
           >
             {/* Cart Header */}
@@ -623,7 +452,7 @@ export default function CounterPage() {
                       fontSize: 11,
                       fontWeight: 700,
                       padding: "2px 8px",
-                      borderRadius: 12,
+                      borderRadius: 14,
                       fontFamily: "JetBrains Mono, monospace",
                     }}
                   >
@@ -633,7 +462,11 @@ export default function CounterPage() {
               </div>
               {items.length > 0 && (
                 <button
-                  onClick={clearCart}
+                  onClick={() => {
+                    clearCart();
+                    setAmountPaid(0);
+                    setAmountDisplay("");
+                  }}
                   style={{
                     background: "none",
                     border: "none",
@@ -698,8 +531,8 @@ export default function CounterPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div
                           style={{
-                            fontSize: 13.5,
-                            fontWeight: 600,
+                            fontSize: 16,
+                            fontWeight: 700,
                             color: "#1a1a2e",
                             whiteSpace: "nowrap",
                             overflow: "hidden",
@@ -1033,29 +866,59 @@ export default function CounterPage() {
                   >
                     Jumlah Bayar
                   </div>
-                  <input
-                    type="number"
-                    value={amountPaid}
-                    onChange={(e) => setAmountPaid(e.target.value)}
-                    placeholder="0"
-                    style={{
-                      width: "100%",
-                      padding: "10px 12px",
-                      borderRadius: 10,
-                      border: "1.5px solid #e5e7eb",
-                      fontSize: 18,
-                      fontWeight: 700,
-                      fontFamily: "JetBrains Mono, monospace",
-                      outline: "none",
-                      boxSizing: "border-box",
-                      color: "#1a1a2e",
-                    }}
-                  />
+                  <div style={{ position: "relative" }}>
+                    <span
+                      style={{
+                        position: "absolute",
+                        left: 14,
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        fontSize: 16,
+                        fontWeight: 600,
+                        color: "#FDB913",
+                        fontFamily: "Inter, sans-serif",
+                      }}
+                    >
+                      Rp
+                    </span>
+                    <input
+                      type="text"
+                      value={amountDisplay}
+                      onChange={(e) => formatCurrencyInput(e.target.value)}
+                      placeholder="0"
+                      style={{
+                        width: "100%",
+                        padding: "12px 12px 12px 40px", // Tambah padding kiri untuk muat "Rp"
+                        borderRadius: 12,
+                        border: "2px solid #e5e7eb",
+                        fontSize: 20,
+                        fontWeight: 700,
+                        fontFamily: "JetBrains Mono, monospace",
+                        outline: "none",
+                        boxSizing: "border-box",
+                        color: "#1a1a2e",
+                        background: "#f9fafb",
+                        textAlign: "right",
+                        letterSpacing: "0.5px",
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = "#FDB913";
+                        e.currentTarget.style.background = "#fff";
+                        e.currentTarget.style.boxShadow =
+                          "0 0 0 3px rgba(253, 185, 19, 0.1)";
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = "#e5e7eb";
+                        e.currentTarget.style.background = "#f9fafb";
+                        e.currentTarget.style.boxShadow = "none";
+                      }}
+                    />
+                  </div>
                   <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
                     {[10000, 20000, 50000, 100000].map((amt) => (
                       <button
                         key={amt}
-                        onClick={() => setAmountPaid(amt.toString())}
+                        onClick={() => handleQuickAmount(amt)}
                         style={{
                           flex: 1,
                           padding: "5px 2px",
@@ -1124,7 +987,7 @@ export default function CounterPage() {
                 {/* Checkout */}
                 <button
                   onClick={handleCheckout}
-                  disabled={processing || paid < total || !amountPaid}
+                  disabled={processing || paid < total || amountPaid === 0}
                   style={{
                     width: "100%",
                     padding: "13px 0",
@@ -1160,75 +1023,112 @@ export default function CounterPage() {
 
       {/* Success Toast */}
       {orderSuccess && (
-        <div
-          style={{
-            position: "fixed",
-            top: 24,
-            right: 24,
-            zIndex: 999,
-            background: "#fff",
-            borderRadius: 16,
-            padding: "18px 24px",
-            boxShadow: "0 12px 40px rgba(0,0,0,0.15)",
-            border: "1px solid #d1fae5",
-            maxWidth: 320,
-            animation: "slideIn 0.3s ease",
-            display: "flex",
-            gap: 14,
-            alignItems: "flex-start",
-          }}
-        >
-          <div
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, #7A9B5E, #4ade80)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 20,
-              flexShrink: 0,
-            }}
-          >
-            ✅
-          </div>
-          <div>
-            <div
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: "#1a1a2e",
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
-              Order Berhasil !
-            </div>
-            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 3 }}>
+        <div className="success-toast">
+          <div className="icon">✓</div>
+
+          <div className="content">
+            <div className="title">Order Berhasil</div>
+            <div className="text">
               No: <strong>{orderSuccess.orderNumber}</strong>
             </div>
-            <div style={{ fontSize: 12, color: "#6b7280" }}>
+            <div className="text">
               Kembalian:{" "}
-              <strong style={{ color: "#7A9B5E" }}>
+              <strong className="money">
                 {formatRupiah(orderSuccess.change)}
               </strong>
             </div>
+            <div className="text">Struk dicetak otomatis</div>
           </div>
+
+          <div className="progress" />
         </div>
       )}
 
       <style>{`
-        @keyframes slideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+      .success-toast {
+        position: fixed;
+        top: 24px;
+        right: 24px;
+        z-index: 999;
+        width: 320px;
+        background: rgba(255,255,255,0.9);
+        backdrop-filter: blur(12px);
+        border-radius: 18px;
+        padding: 18px 20px;
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        border: 1px solid #d1fae5;
+        box-shadow:
+          0 20px 40px rgba(0,0,0,0.15),
+          inset 0 0 0 1px rgba(255,255,255,0.4);
+        animation: toastIn 0.4s cubic-bezier(.22,1,.36,1);
+      }
+
+      .success-toast:hover {
+        transform: translateY(-2px);
+      }
+
+      .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #22c55e, #4ade80);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 22px;
+        box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+        flex-shrink: 0;
+      }
+
+      .content {
+        flex: 1;
+      }
+
+      .title {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1f2937;
+      }
+
+      .text {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 2px;
+      }
+
+      .money {
+        color: #16a34a;
+      }
+
+      .progress {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        background: linear-gradient(90deg, #22c55e, #86efac);
+        border-radius: 0 0 18px 18px;
+        animation: progress 3s linear forwards;
+      }
+
+      @keyframes toastIn {
+        from {
+          transform: translateX(120%) scale(0.95);
+          opacity: 0;
         }
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type="number"] { -moz-appearance: textfield; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+        to {
+          transform: translateX(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      @keyframes progress {
+        from { width: 100%; }
+        to { width: 0%; }
+      }
       `}</style>
     </div>
   );

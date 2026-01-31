@@ -35,9 +35,9 @@ export default function LoginPage() {
           <div className="text-center mb-8">
             <div className="text-6xl mb-4"></div>
             <h1 className="text-3xl font-heading font-bold text-gray-800 mb-2">
-              Jus Buah Tama
+              Tama POS
             </h1>
-            <p className="text-gray-600">Fresh juice everyday</p>
+            <p className="text-gray-600">POS System</p>
           </div>
 
           {/* Login Form */}
@@ -101,7 +101,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className="text-center mt-8 text-white text-sm">
-          <p>&copy; 2024 Jus Buah Tama. All rights reserved.</p>
+          <p>&copy; 2026 Jus Buah Tama. All rights reserved.</p>
         </div>
       </div>
     </div>

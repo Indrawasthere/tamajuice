@@ -353,31 +353,6 @@ export default function ReportsPage() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#0f0f1a",
-        }}
-      >
-        <div
-          style={{
-            color: "#FDB913",
-            fontSize: 28,
-            fontWeight: 700,
-            fontFamily: "Inter, sans-serif",
-          }}
-        >
-          Loading...
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div
       style={{
