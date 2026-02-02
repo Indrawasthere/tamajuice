@@ -47,7 +47,7 @@ Modern POS system untuk **Super Juice** - Fresh juice everyday! 🌴
 ## 📁 Project Structure
 
 ```
-jus-buah-tama-pos/
+tamajuice/
 ├── client/                 # Frontend React app
 │   ├── src/
 │   │   ├── components/    # Reusable components
@@ -83,8 +83,8 @@ jus-buah-tama-pos/
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/jus-buah-tama-pos.git
-cd jus-buah-tama-pos
+git clone https://github.com/Indrawsthere/tamajuice.git
+cd tamajuice
 ```
 
 2. Install dependencies
@@ -168,7 +168,7 @@ npm run dev
 - Username: `kasir`
 - Password: `kasir123`
 
-⚠️ **Segera ganti password setelah deployment!**
+
 
 ## 📊 Database Schema
 
@@ -204,10 +204,10 @@ MIT License - Feel free to use!
 
 ## 🙏 Credits
 
-Built with ❤️ by Indra & Team Tama
-- Designer: Abang Indra
-- Developer: Indra
-- Tester: Bini Indra 😄
+Built with ❤️ by Indra for my Brodie
+- Designer: Abang Gue
+- Developer: Gue
+- Tester: Gue 😄
 
 ---
 
