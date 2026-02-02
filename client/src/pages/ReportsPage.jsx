@@ -1,5 +1,19 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  TrendingUp,
+  ShoppingBag,
+  DollarSign,
+  Package,
+  Calendar,
+  ChevronRight,
+  ArrowUpRight,
+  Activity,
+  Download,
+  Lock,
+  X,
+  Check,
+} from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { formatRupiah } from "../lib/format";
 import Sidebar from "../components/Sidebar";
@@ -13,45 +27,31 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from "recharts";
 
 const ReportTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div
-        style={{
-          background: "#fff",
-          borderRadius: 12,
-          padding: "10px 14px",
-          boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-          border: "1px solid #f0f0f0",
-        }}
-      >
-        <p
-          style={{
-            margin: "0 0 6px",
-            fontSize: 12,
-            color: "#9ca3af",
-            fontWeight: 500,
-          }}
-        >
+      <div className="bg-white/90 backdrop-blur-md border border-slate-200 p-4 rounded-2xl shadow-xl">
+        <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-2">
           {label}
         </p>
         {payload.map((p, i) => (
-          <p
-            key={i}
-            style={{
-              margin: "2px 0",
-              fontSize: 13,
-              fontWeight: 700,
-              color: p.color,
-            }}
-          >
-            <span style={{ color: "#9ca3af", fontWeight: 400 }}>
-              {p.name === "Revenue" ? "Revenue: " : "Cups: "}
-            </span>
-            {p.name === "Revenue" ? formatRupiah(p.value) : p.value}
-          </p>
+          <div key={i} className="flex items-center gap-2 mb-1">
+            <div
+              className="w-2 h-2 rounded-full"
+              style={{ backgroundColor: p.color }}
+            />
+            <p className="text-sm font-bold text-slate-800">
+              <span className="text-slate-500 font-normal mr-2">
+                {p.name === "revenue" ? "Revenue:" : "Orders:"}
+              </span>
+              {p.name === "revenue"
+                ? formatRupiah(p.value)
+                : `${p.value} Transaksi`}
+            </p>
+          </div>
         ))}
       </div>
     );
@@ -59,7 +59,26 @@ const ReportTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const containerVariants = {
+  initial: { opacity: 0 },
+  animate: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
+  },
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+};
+
+const CHART_COLORS = {
+  revenue: "#FDB913",
+  orders: "#7A9B5E",
+};
+
 export default function ReportsPage() {
+  // --- States ---
   const [salesData, setSalesData] = useState([]);
   const [topProducts, setTopProducts] = useState([]);
   const [period, setPeriod] = useState("week");
@@ -70,7 +89,7 @@ export default function ReportsPage() {
   const [closeBookResult, setCloseBookResult] = useState(null);
   const [closingLoading, setClosingLoading] = useState(false);
 
-  // Compute summary from fetched data
+  // --- Derived Data ---
   const totalRevenue = salesData.reduce((s, d) => s + d.revenue, 0);
   const totalOrders = salesData.reduce((s, d) => s + d.orders, 0);
   const totalCups = topProducts.reduce((s, p) => s + p.totalQuantity, 0);
@@ -91,12 +110,13 @@ export default function ReportsPage() {
       setSalesData(chartRes.data.data);
       setTopProducts(topRes.data.data);
     } catch (e) {
-      console.error(e);
+      console.error("Error fetching analytics:", e);
     } finally {
       setLoading(false);
     }
   };
 
+  // --- Handlers ---
   const exportCSV = () => {
     if (topProducts.length === 0) return;
     const headers = [
@@ -109,8 +129,8 @@ export default function ReportsPage() {
     ];
     const rows = topProducts.map((p, i) => [
       i + 1,
-      p.name,
-      p.category?.name || "-",
+      `"${p.name}"`,
+      `"${p.category?.name || "-"}"`,
       p.price,
       p.totalQuantity,
       p.revenue,
@@ -167,1049 +187,468 @@ export default function ReportsPage() {
     }
   };
 
-  const summaryCards = [
+  const statCards = [
     {
       label: "Total Revenue",
       value: formatRupiah(totalRevenue),
-      icon: "",
-      color: "#FDB913",
-      bg: "#FFF8E1",
+      sub: `${totalOrders} Transaksi`,
+      icon: <DollarSign size={20} />,
+      grad: "from-amber-400 to-orange-500",
+      glow: "shadow-orange-200",
     },
     {
       label: "Total Orders",
       value: totalOrders,
-      icon: "",
-      color: "#7A9B5E",
-      bg: "#eef5ec",
+      sub: `${totalCups} Cups Terjual`,
+      icon: <ShoppingBag size={20} />,
+      grad: "from-emerald-400 to-green-600",
+      glow: "shadow-green-200",
     },
     {
-      label: "Total Cups Terjual",
+      label: "Total Cups",
       value: totalCups,
-      icon: "",
-      color: "#60a5fa",
-      bg: "#eff6ff",
+      sub: "Menu Terjual",
+      icon: <Package size={20} />,
+      grad: "from-blue-400 to-indigo-600",
+      glow: "shadow-blue-200",
     },
     {
       label: "Avg Order Value",
       value: formatRupiah(avgOrderValue),
-      icon: "",
-      color: "#a78bfa",
-      bg: "#f5f3ff",
+      sub: "Rata-rata per transaksi",
+      icon: <TrendingUp size={20} />,
+      grad: "from-violet-400 to-purple-600",
+      glow: "shadow-purple-200",
     },
   ];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#f3f4f6",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
+    <div className="flex min-h-screen bg-[#F8FAFC] font-sans text-slate-900">
       <Sidebar currentPath="/reports" />
 
-      <div style={{ marginLeft: 240, flex: 1 }}>
-        {/* Top Bar */}
-        <div
-          style={{
-            height: 64,
-            background: "#fff",
-            borderBottom: "1px solid #e5e7eb",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 28px",
-            position: "sticky",
-            top: 0,
-            zIndex: 50,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <h1
-              style={{
-                fontSize: 20,
-                fontWeight: 700,
-                color: "#1a1a2e",
-                fontFamily: "Inter, sans-serif",
-                margin: 0,
-              }}
-            >
-              Realtime Reports
+      <main className="ml-[240px] flex-1 pb-12">
+        <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-white/80 px-8 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-black tracking-tight text-slate-800">
+              Sales Analytics
             </h1>
-            <span
-              style={{
-                fontSize: 11,
-                fontWeight: 600,
-                color: "#a78bfa",
-                background: "#f5f3ff",
-                padding: "3px 10px",
-                borderRadius: 20,
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Sales Data Analysis
-            </span>
+            <div className="flex items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-[10px] font-black text-blue-600 border border-blue-100 uppercase tracking-tighter">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              </span>
+              Real-time Data
+            </div>
           </div>
+          <div className="flex items-center gap-2 text-slate-400 text-sm font-medium bg-slate-50 px-4 py-2 rounded-xl">
+            <Calendar size={16} />
+            {new Date().toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </div>
+        </header>
 
-          {/* Period Filter */}
-          <div style={{ display: "flex", gap: 6 }}>
-            {/* Export + Close Book buttons */}
-            <div style={{ display: "flex", gap: 8, position: "relative" }}>
-              {/* Export */}
-              <div style={{ position: "relative" }}>
-                <button
-                  onClick={() => setShowExportMenu(!showExportMenu)}
-                  style={{
-                    padding: "6px 14px",
-                    borderRadius: 8,
-                    border: "1px solid #e5e7eb",
-                    background: "#fff",
-                    color: "#6b7280",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    cursor: "pointer",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                  }}
-                >
-                  Export {showExportMenu ? "" : ""}
-                </button>
-                {showExportMenu && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: "calc(100% + 6px)",
-                      right: 0,
-                      background: "#fff",
-                      borderRadius: 10,
-                      border: "1px solid #e5e7eb",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                      minWidth: 160,
-                      zIndex: 100,
-                      overflow: "hidden",
-                    }}
+        <motion.div
+          variants={containerVariants}
+          initial="initial"
+          animate="animate"
+          className="p-8 max-w-[1600px] mx-auto"
+        >
+          {/* Action Bar */}
+          <motion.div
+            variants={itemVariants}
+            className="flex justify-between items-center mb-8"
+          >
+            <div>
+              <h1 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">
+                Sales Analytics
+              </h1>
+              <p className="text-sm text-slate-400 font-medium">
+                Visualisasi data penjualan dan performa produk Anda.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {/* Period Selector */}
+              <div className="flex bg-slate-50 p-1 rounded-2xl">
+                {["week", "month", "year"].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPeriod(p)}
+                    className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                      period === p
+                        ? "bg-white text-slate-800 shadow-md"
+                        : "text-slate-400 hover:text-slate-600"
+                    }`}
                   >
-                    {[
-                      { label: "Export CSV", fn: exportCSV, icon: "" },
-                      { label: "Export JSON", fn: exportJSON, icon: "" },
-                    ].map((item) => (
-                      <button
-                        key={item.label}
-                        onClick={item.fn}
-                        style={{
-                          width: "100%",
-                          padding: "10px 16px",
-                          border: "none",
-                          background: "transparent",
-                          color: "#374151",
-                          fontSize: 13,
-                          fontWeight: 500,
-                          cursor: "pointer",
-                          textAlign: "left",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 8,
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "#f9fafb")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "transparent")
-                        }
-                      >
-                        {item.icon} {item.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+                    {p}
+                  </button>
+                ))}
               </div>
 
-              {/* Close Book */}
-              <button
+              <div className="relative">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  className="flex items-center gap-2 px-5 py-3 bg-white text-slate-700 rounded-2xl text-sm font-bold hover:bg-slate-50 transition-colors border border-slate-200"
+                >
+                  <Download size={16} />
+                  Export Data
+                </motion.button>
+
+                <AnimatePresence>
+                  {showExportMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full right-0 mt-2 bg-white rounded-2xl border border-slate-200 shadow-xl z-50 overflow-hidden min-w-[160px]"
+                    >
+                      <button
+                        onClick={exportCSV}
+                        className="w-full px-4 py-3 text-left text-sm font-medium hover:bg-slate-50 transition-colors"
+                      >
+                        CSV Format
+                      </button>
+                      <button
+                        onClick={exportJSON}
+                        className="w-full px-4 py-3 text-left text-sm font-medium hover:bg-slate-50 transition-colors border-t border-slate-100"
+                      >
+                        JSON Format
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   setShowCloseBook(true);
                   setCloseBookResult(null);
                 }}
-                style={{
-                  padding: "6px 14px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
-                  color: "#fff",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  boxShadow: "0 3px 10px rgba(167,139,250,0.3)",
-                }}
+                className="flex items-center gap-2 px-5 py-3 bg-slate-900 text-white rounded-2xl text-sm font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200"
               >
+                <Lock size={16} />
                 Close Book
-              </button>
+              </motion.button>
             </div>
-            {/* Close Book Modal */}
-            {showCloseBook && (
-              <div
-                style={{
-                  position: "fixed",
-                  inset: 0,
-                  background: "rgba(0,0,0,0.45)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  zIndex: 500,
-                }}
-              >
-                <div
-                  style={{
-                    background: "#fff",
-                    borderRadius: 20,
-                    padding: 32,
-                    width: 460,
-                    boxShadow: "0 40px 80px rgba(0,0,0,0.2)",
-                    maxHeight: "90vh",
-                    overflowY: "auto",
-                  }}
-                >
-                  {/* Header */}
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 24,
-                    }}
-                  >
-                    <h2
-                      style={{
-                        margin: 0,
-                        fontSize: 18,
-                        fontWeight: 700,
-                        color: "#1a1a2e",
-                      }}
-                    >
-                      Close Book
-                    </h2>
-                    <button
-                      onClick={() => {
-                        setShowCloseBook(false);
-                        setCloseBookResult(null);
-                      }}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        fontSize: 20,
-                        color: "#9ca3af",
-                        cursor: "pointer",
-                      }}
-                    >
-                      ✕
-                    </button>
-                  </div>
+          </motion.div>
 
-                  {!closeBookResult ? (
-                    <>
-                      {/* Period Selector */}
-                      <div style={{ marginBottom: 20 }}>
-                        <label
-                          style={{
-                            display: "block",
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: "#6b7280",
-                            marginBottom: 8,
-                          }}
-                        >
-                          Pilih Periode
-                        </label>
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "1fr 1fr",
-                            gap: 8,
-                          }}
-                        >
-                          {[
-                            { value: "daily", label: "Harian", icon: "" },
-                            { value: "weekly", label: "Mingguan", icon: "" },
-                            { value: "monthly", label: "Bulanan", icon: "" },
-                            { value: "yearly", label: "Tahunan", icon: "" },
-                          ].map((opt) => (
-                            <button
-                              key={opt.value}
-                              onClick={() => setCloseBookPeriod(opt.value)}
-                              style={{
-                                padding: "14px 12px",
-                                borderRadius: 12,
-                                border:
-                                  closeBookPeriod === opt.value
-                                    ? "2px solid #a78bfa"
-                                    : "1.5px solid #e5e7eb",
-                                background:
-                                  closeBookPeriod === opt.value
-                                    ? "#f5f3ff"
-                                    : "#fff",
-                                cursor: "pointer",
-                                textAlign: "left",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 10,
-                              }}
-                            >
-                              <span style={{ fontSize: 20 }}>{opt.icon}</span>
-                              <div>
-                                <div
-                                  style={{
-                                    fontSize: 13,
-                                    fontWeight: 600,
-                                    color:
-                                      closeBookPeriod === opt.value
-                                        ? "#7c3aed"
-                                        : "#1a1a2e",
-                                  }}
-                                >
-                                  {opt.label}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Preview Summary */}
-                      <div
-                        style={{
-                          background: "#fafafa",
-                          borderRadius: 12,
-                          padding: 16,
-                          marginBottom: 20,
-                          border: "1px solid #f0f0f0",
-                        }}
-                      >
-                        <div
-                          style={{
-                            fontSize: 12,
-                            fontWeight: 600,
-                            color: "#9ca3af",
-                            marginBottom: 10,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.5px",
-                          }}
-                        >
-                          Preview Summary
-                        </div>
-                        {[
-                          {
-                            label: "Total Revenue",
-                            value: formatRupiah(totalRevenue),
-                            color: "#FDB913",
-                          },
-                          {
-                            label: "Total Orders",
-                            value: totalOrders,
-                            color: "#7A9B5E",
-                          },
-                          {
-                            label: "Total Cups",
-                            value: totalCups,
-                            color: "#60a5fa",
-                          },
-                          {
-                            label: "Avg Order Value",
-                            value: formatRupiah(avgOrderValue),
-                            color: "#a78bfa",
-                          },
-                        ].map((s) => (
-                          <div
-                            key={s.label}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              padding: "6px 0",
-                              borderBottom: "1px solid #f0f0f0",
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: "#6b7280" }}>
-                              {s.label}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: s.color,
-                                fontFamily: "JetBrains Mono, monospace",
-                              }}
-                            >
-                              {s.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Confirm Button */}
-                      <button
-                        onClick={handleCloseBook}
-                        disabled={closingLoading}
-                        style={{
-                          width: "100%",
-                          padding: "12px 0",
-                          borderRadius: 12,
-                          border: "none",
-                          background: closingLoading
-                            ? "#d1d5db"
-                            : "linear-gradient(135deg, #a78bfa, #8b5cf6)",
-                          color: "#fff",
-                          fontSize: 14,
-                          fontWeight: 600,
-                          cursor: closingLoading ? "not-allowed" : "pointer",
-                          boxShadow: closingLoading
-                            ? "none"
-                            : "0 4px 14px rgba(167,139,250,0.35)",
-                        }}
-                      >
-                        {closingLoading
-                          ? "Memproses..."
-                          : `Konfirmasi Close Book ${closeBookPeriod.charAt(0).toUpperCase() + closeBookPeriod.slice(1)}`}
-                      </button>
-                    </>
-                  ) : (
-                    /* Result view */
-                    <>
-                      <div style={{ textAlign: "center", marginBottom: 20 }}>
-                        <div
-                          style={{
-                            width: 64,
-                            height: 64,
-                            borderRadius: 16,
-                            margin: "0 auto 12px",
-                            background:
-                              "linear-gradient(135deg, #a78bfa, #8b5cf6)",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 28,
-                            boxShadow: "0 8px 20px rgba(167,139,250,0.4)",
-                          }}
-                        >
-                          ✓
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: 700,
-                            color: "#1a1a2e",
-                          }}
-                        >
-                          Close Book Berhasil
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "#9ca3af",
-                            marginTop: 4,
-                          }}
-                        >
-                          Periode:{" "}
-                          {closeBookResult.period.charAt(0).toUpperCase() +
-                            closeBookResult.period.slice(1)}{" "}
-                          — {closeBookResult.date}
-                        </div>
-                      </div>
-
-                      {/* Result Summary */}
-                      <div
-                        style={{
-                          background: "#f5f3ff",
-                          borderRadius: 12,
-                          padding: 18,
-                          marginBottom: 20,
-                        }}
-                      >
-                        {[
-                          {
-                            label: "Total Revenue",
-                            value: formatRupiah(closeBookResult.totalRevenue),
-                            color: "#FDB913",
-                          },
-                          {
-                            label: "Total Orders",
-                            value: closeBookResult.totalOrders,
-                            color: "#7A9B5E",
-                          },
-                          {
-                            label: "Total Cups",
-                            value: closeBookResult.totalCups,
-                            color: "#60a5fa",
-                          },
-                          {
-                            label: "Avg Order Value",
-                            value: formatRupiah(closeBookResult.avgOrderValue),
-                            color: "#a78bfa",
-                          },
-                        ].map((s) => (
-                          <div
-                            key={s.label}
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              padding: "7px 0",
-                              borderBottom: "1px solid rgba(167,139,250,0.15)",
-                            }}
-                          >
-                            <span style={{ fontSize: 13, color: "#6b7280" }}>
-                              {s.label}
-                            </span>
-                            <span
-                              style={{
-                                fontSize: 13,
-                                fontWeight: 700,
-                                color: s.color,
-                                fontFamily: "JetBrains Mono, monospace",
-                              }}
-                            >
-                              {s.value}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setShowCloseBook(false);
-                          setCloseBookResult(null);
-                        }}
-                        style={{
-                          width: "100%",
-                          padding: "11px 0",
-                          borderRadius: 12,
-                          border: "none",
-                          background:
-                            "linear-gradient(135deg, #a78bfa, #8b5cf6)",
-                          color: "#fff",
-                          fontSize: 14,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Selesai
-                      </button>
-                    </>
-                  )}
-                </div>
-              </div>
-            )}
-            {["week", "month", "year"].map((p) => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                style={{
-                  padding: "6px 16px",
-                  borderRadius: 8,
-                  border: "none",
-                  background:
-                    period === p
-                      ? "linear-gradient(135deg, #FDB913, #7A9B5E)"
-                      : "#f3f4f6",
-                  color: period === p ? "#fff" : "#6b7280",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  textTransform: "capitalize",
-                  boxShadow:
-                    period === p ? "0 3px 10px rgba(253,185,19,0.3)" : "none",
-                  transition: "all 0.2s",
-                }}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ padding: "24px 28px", maxWidth: 1400 }}>
-          {/* Summary Cards */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: 18,
-              marginBottom: 24,
-            }}
-          >
-            {summaryCards.map((card, i) => (
-              <div
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            {statCards.map((card, i) => (
+              <motion.div
                 key={i}
-                style={{
-                  background: "#fff",
-                  borderRadius: 16,
-                  padding: "18px 20px",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-                  border: "1px solid #f0f0f0",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 16,
-                }}
+                variants={itemVariants}
+                whileHover={{ y: -8 }}
+                className={`bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:${card.glow} transition-all duration-300 relative overflow-hidden group`}
               >
                 <div
-                  style={{
-                    width: 46,
-                    height: 46,
-                    borderRadius: 14,
-                    background: card.bg,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 22,
-                    flexShrink: 0,
-                  }}
-                >
-                  {card.icon}
-                </div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      color: "#9ca3af",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      marginBottom: 3,
-                    }}
-                  >
+                  className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${card.grad} opacity-[0.03] rounded-full group-hover:scale-150 transition-transform duration-700`}
+                />
+
+                <div className="flex justify-between items-start mb-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 leading-none">
                     {card.label}
-                  </div>
+                  </p>
                   <div
-                    style={{
-                      fontSize: 22,
-                      fontWeight: 800,
-                      color: card.color,
-                      fontFamily: "Inter, sans-serif",
-                      letterSpacing: "-0.3px",
-                    }}
+                    className={`p-3 rounded-2xl bg-gradient-to-br ${card.grad} text-white shadow-lg shadow-current/20`}
                   >
-                    {card.value}
+                    {card.icon}
                   </div>
                 </div>
-              </div>
+                <h2 className="text-2xl font-black text-slate-800 mb-1 tracking-tight">
+                  {card.value}
+                </h2>
+                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                  {card.sub}{" "}
+                  <ChevronRight size={12} className="text-slate-300" />
+                </div>
+              </motion.div>
             ))}
           </div>
 
-          {/* Bar Chart: Revenue + Cups per day */}
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              padding: 24,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              border: "1px solid #f0f0f0",
-              marginBottom: 24,
-            }}
+          <motion.div
+            variants={itemVariants}
+            className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm mb-8"
           >
-            <div style={{ marginBottom: 20 }}>
-              <h3
-                style={{
-                  margin: 0,
-                  fontSize: 15,
-                  fontWeight: 700,
-                  color: "#1a1a2e",
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                Revenue & Orders Harian
-              </h3>
-              <p style={{ margin: "3px 0 0", fontSize: 12, color: "#9ca3af" }}>
-                Perbandingan revenue (Rp) dan jumlah transaksi per hari
-              </p>
-            </div>
-            <ResponsiveContainer width="100%" height={260}>
-              <BarChart data={salesData} barGap={4}>
-                <defs>
-                  <linearGradient id="barRevenue" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#FDB913" />
-                    <stop offset="100%" stopColor="#f59e0b" />
-                  </linearGradient>
-                  <linearGradient id="barOrders" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7A9B5E" />
-                    <stop offset="100%" stopColor="#4ade80" />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis
-                  dataKey="date"
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  yAxisId="left"
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  tick={{ fontSize: 11, fill: "#9ca3af" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip content={<ReportTooltip />} />
-                <Legend
-                  iconType="roundedRect"
-                  iconSize={12}
-                  wrapperStyle={{ fontSize: 12, paddingTop: 12 }}
-                />
-                <Bar
-                  yAxisId="left"
-                  dataKey="revenue"
-                  name="revenue"
-                  fill="url(#barRevenue)"
-                  radius={[6, 6, 0, 0]}
-                  barSize={28}
-                />
-                <Bar
-                  yAxisId="right"
-                  dataKey="orders"
-                  name="orders"
-                  fill="url(#barOrders)"
-                  radius={[6, 6, 0, 0]}
-                  barSize={28}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Full Product Report Table */}
-          <div
-            style={{
-              background: "#fff",
-              borderRadius: 16,
-              padding: 24,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-              border: "1px solid #f0f0f0",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
+            <div className="flex justify-between items-center mb-8">
               <div>
-                <h3
-                  style={{
-                    margin: 0,
-                    fontSize: 15,
-                    fontWeight: 700,
-                    color: "#1a1a2e",
-                    fontFamily: "Inter, sans-serif",
-                  }}
-                >
-                  Laporan Penjualan Produk
+                <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
+                  <Activity size={20} className="text-amber-500" /> Revenue &
+                  Transaction Trend
                 </h3>
-                <p
-                  style={{ margin: "3px 0 0", fontSize: 12, color: "#9ca3af" }}
-                >
-                  Detail per produk — cups terjual, revenue, dan kontribusi
+                <p className="text-sm text-slate-400 font-medium">
+                  Data harian berdasarkan periode yang dipilih.
                 </p>
               </div>
             </div>
 
-            {topProducts.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "60px 0",
-                  color: "#9ca3af",
-                  fontSize: 14,
-                }}
-              >
-                <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>
-                  📊
-                </div>
-                Belum ada data penjualan untuk periode ini
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={salesData}>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke="#f1f5f9"
+                  />
+                  <XAxis
+                    dataKey="date"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
+                    dy={10}
+                  />
+                  <YAxis
+                    yAxisId="left"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
+                    tickFormatter={(v) => `${v / 1000}k`}
+                  />
+                  <YAxis
+                    yAxisId="right"
+                    orientation="right"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
+                  />
+                  <Tooltip
+                    content={<ReportTooltip />}
+                    cursor={{ fill: "#f8fafc" }}
+                  />
+                  <Legend
+                    verticalAlign="top"
+                    align="right"
+                    iconType="circle"
+                    wrapperStyle={{
+                      paddingBottom: "20px",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                    }}
+                  />
+                  <Bar
+                    yAxisId="left"
+                    dataKey="revenue"
+                    name="Revenue"
+                    radius={[6, 6, 0, 0]}
+                    barSize={32}
+                  >
+                    {salesData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={
+                          index === salesData.length - 1 ? "#FDB913" : "#e2e8f0"
+                        }
+                      />
+                    ))}
+                  </Bar>
+                  <Bar
+                    yAxisId="right"
+                    dataKey="orders"
+                    name="Orders"
+                    fill="#7A9B5E"
+                    radius={[6, 6, 0, 0]}
+                    barSize={32}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </motion.div>
+
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden"
+          >
+            <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
+              <div>
+                <h3 className="text-lg font-black text-slate-800 tracking-tight">
+                  Top Selling Products
+                </h3>
+                <p className="text-sm text-slate-400 font-medium">
+                  Produk dengan volume penjualan tertinggi
+                </p>
               </div>
-            ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ borderBottom: "2px solid #f0f0f0" }}>
-                      {[
-                        "Rank",
-                        "Produk",
-                        "Kategori",
-                        "Harga / Cup",
-                        "Cups Terjual",
-                        "Total Revenue",
-                        "Kontribusi",
-                      ].map((h) => (
-                        <th
-                          key={h}
-                          style={{
-                            padding: "10px 14px",
-                            textAlign: "left",
-                            fontSize: 11,
-                            fontWeight: 600,
-                            color: "#9ca3af",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.5px",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {topProducts.map((p, i) => {
-                      const contrib =
-                        totalRevenue > 0
-                          ? ((p.revenue / totalRevenue) * 100).toFixed(1)
-                          : 0;
-                      const barWidth =
-                        totalRevenue > 0
-                          ? (p.revenue /
-                              Math.max(...topProducts.map((x) => x.revenue))) *
-                            100
-                          : 0;
-                      return (
-                        <tr
-                          key={i}
-                          style={{ borderBottom: "1px solid #f3f4f6" }}
-                        >
-                          <td style={{ padding: "14px" }}>
-                            <span
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                width: 30,
-                                height: 30,
-                                borderRadius: 8,
-                                background:
-                                  i === 0
-                                    ? "linear-gradient(135deg, #FDB913, #f59e0b)"
-                                    : i === 1
-                                      ? "linear-gradient(135deg, #9ca3af, #6b7280)"
-                                      : i === 2
-                                        ? "linear-gradient(135deg, #d97706, #b45309)"
-                                        : "#f3f4f6",
-                                color: i < 3 ? "#fff" : "#6b7280",
-                                fontSize: 13,
-                                fontWeight: 700,
-                              }}
-                            >
-                              {i + 1}
-                            </span>
-                          </td>
-                          <td style={{ padding: "14px" }}>
-                            <div
-                              style={{
-                                fontSize: 13.5,
-                                fontWeight: 600,
-                                color: "#1a1a2e",
-                              }}
-                            >
-                              {p.name}
-                            </div>
-                            <div
-                              style={{
-                                fontSize: 11,
-                                color: "#9ca3af",
-                                marginTop: 2,
-                              }}
-                            >
-                              {p.totalOrders} pesanan
-                            </div>
-                          </td>
-                          <td style={{ padding: "14px" }}>
-                            <span
-                              style={{
-                                fontSize: 11,
-                                fontWeight: 600,
-                                color: "#7A9B5E",
-                                background: "#eef5ec",
-                                padding: "3px 10px",
-                                borderRadius: 12,
-                              }}
-                            >
-                              {p.category?.name || "—"}
-                            </span>
-                          </td>
-                          <td
-                            style={{
-                              padding: "14px",
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: "#FDB913",
-                              fontFamily: "JetBrains Mono, monospace",
-                            }}
-                          >
-                            {formatRupiah(p.price)}
-                          </td>
-                          <td style={{ padding: "14px" }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 8,
-                              }}
-                            >
-                              <span
-                                style={{
-                                  fontSize: 15,
-                                  fontWeight: 800,
-                                  color: "#1a1a2e",
-                                  fontFamily: "JetBrains Mono, monospace",
-                                }}
-                              >
-                                {p.totalQuantity}
-                              </span>
-                              <span style={{ fontSize: 11, color: "#9ca3af" }}>
-                                cups
-                              </span>
-                            </div>
-                          </td>
-                          <td
-                            style={{
-                              padding: "14px",
-                              fontSize: 14,
-                              fontWeight: 700,
-                              color: "#1a1a2e",
-                              fontFamily: "JetBrains Mono, monospace",
-                            }}
-                          >
-                            {formatRupiah(p.revenue)}
-                          </td>
-                          <td style={{ padding: "14px", minWidth: 140 }}>
-                            <div
-                              style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: 10,
-                              }}
-                            >
-                              <div
-                                style={{
-                                  flex: 1,
-                                  height: 7,
-                                  borderRadius: 4,
-                                  background: "#f3f4f6",
-                                  overflow: "hidden",
-                                }}
-                              >
-                                <div
-                                  style={{
-                                    width: `${barWidth}%`,
-                                    height: "100%",
-                                    background:
-                                      "linear-gradient(90deg, #FDB913, #7A9B5E)",
-                                    borderRadius: 4,
-                                    transition: "width 0.6s ease",
-                                  }}
-                                />
-                              </div>
-                              <span
-                                style={{
-                                  fontSize: 11,
-                                  fontWeight: 700,
-                                  color: "#9ca3af",
-                                  minWidth: 38,
-                                  textAlign: "right",
-                                }}
-                              >
-                                {contrib}%
-                              </span>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  {/* Footer Summary Row */}
-                  <tfoot>
-                    <tr
-                      style={{
-                        borderTop: "2px solid #f0f0f0",
-                        background: "#fafafa",
-                      }}
+              <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
+                Laporan Lengkap <ArrowUpRight size={14} />
+              </button>
+            </div>
+
+            <div className="overflow-x-auto p-4">
+              <table className="w-full border-separate border-spacing-y-2">
+                <thead>
+                  <tr className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <th className="px-6 py-4">#</th>
+                    <th className="px-6 py-4">PRODUCT</th>
+                    <th className="px-6 py-4 text-center">CATEGORY</th>
+                    <th className="px-6 py-4 text-center">PRICE</th>
+                    <th className="px-6 py-4 text-center">SOLD</th>
+                    <th className="px-6 py-4 text-right">REVENUE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topProducts.map((p, i) => (
+                    <motion.tr
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="group hover:bg-slate-50 transition-all rounded-2xl"
                     >
-                      <td
-                        colSpan={3}
-                        style={{
-                          padding: "14px",
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: "#1a1a2e",
-                        }}
-                      >
-                        Total
-                      </td>
-                      <td
-                        style={{
-                          padding: "14px",
-                          fontSize: 12,
-                          color: "#9ca3af",
-                        }}
-                      >
-                        —
-                      </td>
-                      <td style={{ padding: "14px" }}>
-                        <span
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 800,
-                            color: "#60a5fa",
-                            fontFamily: "JetBrains Mono, monospace",
-                          }}
+                      <td className="px-6 py-4 first:rounded-l-2xl">
+                        <div
+                          className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shadow-sm ${
+                            i === 0
+                              ? "bg-amber-100 text-amber-600"
+                              : i === 1
+                                ? "bg-emerald-100 text-emerald-600"
+                                : i === 2
+                                  ? "bg-blue-100 text-blue-600"
+                                  : "bg-slate-100 text-slate-500"
+                          }`}
                         >
-                          {totalCups}{" "}
-                          <span
-                            style={{
-                              fontSize: 11,
-                              color: "#9ca3af",
-                              fontWeight: 500,
-                            }}
-                          >
-                            cups
+                          {i + 1}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="font-black text-slate-800 text-sm">
+                            {p.name}
+                          </div>
+                          <div className="text-xs text-slate-400">
+                            {p.totalOrders} Transaksi
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase border border-emerald-100">
+                          {p.category?.name || "Uncategorized"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center font-bold text-slate-700">
+                        {formatRupiah(p.price)}
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="flex flex-col items-center">
+                          <span className="text-sm font-black text-slate-800">
+                            {p.totalQuantity}
                           </span>
-                        </span>
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
+                            Cups
+                          </span>
+                        </div>
                       </td>
-                      <td style={{ padding: "14px" }}>
-                        <span
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 800,
-                            color: "#FDB913",
-                            fontFamily: "JetBrains Mono, monospace",
-                          }}
-                        >
-                          {formatRupiah(totalRevenue)}
-                        </span>
+                      <td className="px-6 py-4 text-right last:rounded-r-2xl">
+                        <div className="font-mono font-black text-sm text-slate-800 mb-1">
+                          {formatRupiah(p.revenue)}
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-amber-400 rounded-full"
+                            style={{
+                              width: `${Math.min(
+                                (p.revenue / totalRevenue) * 100,
+                                100,
+                              )}%`,
+                            }}
+                          />
+                        </div>
                       </td>
-                      <td
-                        style={{
-                          padding: "14px",
-                          fontSize: 12,
-                          color: "#9ca3af",
-                          fontWeight: 600,
-                        }}
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        </motion.div>
+      </main>
+
+      <AnimatePresence>
+        {showCloseBook && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[1000] p-8"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl"
+            >
+              {!closeBookResult ? (
+                <>
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <h3 className="text-xl font-black text-slate-800 mb-1">
+                        Konfirmasi Close Book
+                      </h3>
+                      <p className="text-sm text-slate-400">
+                        Pilih periode penutupan buku Anda.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowCloseBook(false)}
+                      className="p-2 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {["daily", "weekly", "monthly", "yearly"].map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => setCloseBookPeriod(opt)}
+                        className={`p-4 rounded-2xl text-sm font-bold transition-all ${
+                          closeBookPeriod === opt
+                            ? "bg-slate-900 text-white"
+                            : "bg-slate-50 text-slate-600 hover:bg-slate-100"
+                        }`}
                       >
-                        100%
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+                        {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={handleCloseBook}
+                    disabled={closingLoading}
+                    className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {closingLoading
+                      ? "Memproses..."
+                      : `Tutup Buku ${closeBookPeriod.charAt(0).toUpperCase() + closeBookPeriod.slice(1)}`}
+                  </button>
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <Check size={32} className="text-white" />
+                  </div>
+                  <h3 className="text-xl font-black text-slate-800 mb-2">
+                    Berhasil Ditutup!
+                  </h3>
+                  <p className="text-slate-400 mb-8">
+                    Laporan periode {closeBookResult.period} telah diamankan.
+                  </p>
+                  <button
+                    onClick={() => setShowCloseBook(false)}
+                    className="w-full py-3 bg-slate-100 text-slate-700 rounded-2xl font-bold hover:bg-slate-200 transition-colors"
+                  >
+                    Selesai
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
