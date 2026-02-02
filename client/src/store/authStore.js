@@ -1,5 +1,5 @@
 import { create } from "zustand";
-
+import api from "../lib/api";
 const useAuthStore = create((set) => ({
   user: null,
   token: null,
@@ -11,6 +11,7 @@ const useAuthStore = create((set) => ({
 
     try {
       const res = await api.post("/auth/login", { username, password });
+
       const { token, user } = res.data.data;
 
       localStorage.setItem("token", token);
@@ -28,7 +29,8 @@ const useAuthStore = create((set) => ({
       set({ loading: false });
       return {
         success: false,
-        message: err.response?.data?.message || "Login failed",
+        message:
+          err.response?.data?.message || "Koneksi ke server bermasalah, Bre!",
       };
     }
   },
@@ -44,11 +46,15 @@ const useAuthStore = create((set) => ({
     const user = localStorage.getItem("user");
 
     if (token && user) {
-      set({
-        token,
-        user: JSON.parse(user),
-        isAuthenticated: true,
-      });
+      try {
+        set({
+          token,
+          user: JSON.parse(user),
+          isAuthenticated: true,
+        });
+      } catch (e) {
+        localStorage.clear();
+      }
     }
   },
 }));

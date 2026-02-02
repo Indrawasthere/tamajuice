@@ -11,7 +11,7 @@ export const login = async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: "Username and password are required",
+        message: "Username dan password wajib diisi, Bre!",
       });
     }
 
@@ -22,23 +22,32 @@ export const login = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Username atau password salah",
       });
     }
 
     if (!user.isActive) {
-      return res.status(401).json({
+      return res.status(403).json({
         success: false,
-        message: "Account is deactivated",
+        message: "Akun lo nonaktif, hubungi admin ya",
       });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid credentials",
+        message: "Username atau password salah",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error(
+        "FATAL ERROR: JWT_SECRET is not defined in environment variables!",
+      );
+      return res.status(500).json({
+        success: false,
+        message: "Server configuration error",
       });
     }
 
@@ -48,8 +57,9 @@ export const login = async (req, res) => {
       { expiresIn: "7d" },
     );
 
-    res.json({
+    return res.status(200).json({
       success: true,
+      message: "Login berhasil! Selamat datang, " + user.name,
       data: {
         token,
         user: {
@@ -61,18 +71,28 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({
+    console.error("Detailed Login Error:", error);
+
+    return res.status(500).json({
       success: false,
-      message: "Login failed",
+      message: "Terjadi kesalahan sistem",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
 
-// INI YANG KURANG BRE
 export const me = async (req, res) => {
-  res.json({
-    success: true,
-    data: req.user,
-  });
+  try {
+    if (!req.user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+    res.json({
+      success: true,
+      data: req.user,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
 };

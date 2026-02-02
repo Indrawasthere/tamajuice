@@ -8,7 +8,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // INJECT TOKEN KE HEADER
     const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -32,7 +31,6 @@ api.interceptors.response.use(
       `❌ ${error.response?.status || "Network"} ${error.config?.url}`,
     );
 
-    // AUTO LOGOUT KALO 401
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
