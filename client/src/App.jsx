@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import useAuthStore from "./store/authStore";
 import AdminRoute from "./components/AdminRoute";
+import PrivateRoute from "./components/PrivateRoute";
+import { useEffect } from "react";
 
 // Pages
 import LoginPage from "./pages/LoginPage";
@@ -10,21 +12,19 @@ import ProductsPage from "./pages/ProductsPage";
 import OrdersPage from "./pages/OrdersPage";
 import ReportsPage from "./pages/ReportsPage";
 
-function PrivateRoute({ children }) {
-  const { isAuthenticated, user } = useAuthStore();
-  if (!isAuthenticated) return <Navigate to="/login" />;
-  if (user?.role === "ADMIN" && window.location.pathname === "/")
-    return <Navigate to="/dashboard" />;
-  return children;
-}
-
 function App() {
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
 
       <Route
-        path="/"
+        path="/counter"
         element={
           <PrivateRoute>
             <CounterPage />
@@ -65,6 +65,14 @@ function App() {
           <AdminRoute>
             <ReportsPage />
           </AdminRoute>
+        }
+      />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Navigate to="/counter" replace />
+          </PrivateRoute>
         }
       />
     </Routes>

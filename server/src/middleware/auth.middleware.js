@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 
 export const auth = async (req, res, next) => {
   try {
-    // 1. Ambil Authorization header
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -15,13 +14,10 @@ export const auth = async (req, res, next) => {
       });
     }
 
-    // 2. Extract token
     const token = authHeader.split(" ")[1];
 
-    // 3. Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // 4. Cari user
     const user = await prisma.user.findUnique({
       where: { id: decoded.userId },
       select: {
@@ -40,7 +36,6 @@ export const auth = async (req, res, next) => {
       });
     }
 
-    // 5. Inject user ke request
     req.user = user;
 
     next();

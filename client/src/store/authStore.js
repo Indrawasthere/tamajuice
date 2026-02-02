@@ -4,6 +4,7 @@ const useAuthStore = create((set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
+  isInitialized: false,
   loading: false,
 
   login: async (username, password) => {
@@ -21,6 +22,7 @@ const useAuthStore = create((set) => ({
         user,
         token,
         isAuthenticated: true,
+        isInitialized: true,
         loading: false,
       });
 
@@ -51,10 +53,14 @@ const useAuthStore = create((set) => ({
           token,
           user: JSON.parse(user),
           isAuthenticated: true,
+          isInitialized: true,
         });
       } catch (e) {
         localStorage.clear();
+        set({ isInitialized: true });
       }
+    } else {
+      set({ isInitialized: true });
     }
   },
 }));

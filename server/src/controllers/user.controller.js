@@ -1,5 +1,5 @@
-import bcrypt from 'bcryptjs';
-import { PrismaClient } from '@prisma/client';
+import bcrypt from "bcryptjs";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -12,22 +12,22 @@ export const getUsers = async (req, res) => {
         name: true,
         role: true,
         isActive: true,
-        createdAt: true
+        createdAt: true,
       },
       orderBy: {
-        createdAt: 'desc'
-      }
+        createdAt: "desc",
+      },
     });
 
     res.json({
       success: true,
-      data: users
+      data: users,
     });
   } catch (error) {
-    console.error('Get users error:', error);
+    console.error("Get users error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch users'
+      message: "Failed to fetch users",
     });
   }
 };
@@ -39,7 +39,7 @@ export const createUser = async (req, res) => {
     if (!username || !password || !name) {
       return res.status(400).json({
         success: false,
-        message: 'Username, password, and name are required'
+        message: "Username, password, and name are required",
       });
     }
 
@@ -50,7 +50,7 @@ export const createUser = async (req, res) => {
         username,
         password: hashedPassword,
         name,
-        role: role || 'KASIR'
+        role: role || "KASIR",
       },
       select: {
         id: true,
@@ -58,19 +58,19 @@ export const createUser = async (req, res) => {
         name: true,
         role: true,
         isActive: true,
-        createdAt: true
-      }
+        createdAt: true,
+      },
     });
 
     res.status(201).json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
-    console.error('Create user error:', error);
+    console.error("Create user error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to create user'
+      message: "Failed to create user",
     });
   }
 };
@@ -94,19 +94,19 @@ export const updateUser = async (req, res) => {
         name: true,
         role: true,
         isActive: true,
-        createdAt: true
-      }
+        createdAt: true,
+      },
     });
 
     res.json({
       success: true,
-      data: user
+      data: user,
     });
   } catch (error) {
-    console.error('Update user error:', error);
+    console.error("Update user error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to update user'
+      message: "Failed to update user",
     });
   }
 };
@@ -115,27 +115,26 @@ export const deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Prevent deleting own account
     if (id === req.user.id) {
       return res.status(400).json({
         success: false,
-        message: 'Cannot delete your own account'
+        message: "Cannot delete your own account",
       });
     }
 
     await prisma.user.delete({
-      where: { id }
+      where: { id },
     });
 
     res.json({
       success: true,
-      message: 'User deleted successfully'
+      message: "User deleted successfully",
     });
   } catch (error) {
-    console.error('Delete user error:', error);
+    console.error("Delete user error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to delete user'
+      message: "Failed to delete user",
     });
   }
 };

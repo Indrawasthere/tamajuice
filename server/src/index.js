@@ -68,7 +68,7 @@ app.get("/health", (req, res) => {
 app.use(errorHandler);
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server on fire di port ${PORT}`);
+  console.log(`Server kebakaran di port ${PORT}`);
 });
 
 export default app;

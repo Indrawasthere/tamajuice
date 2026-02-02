@@ -71,11 +71,10 @@ export default function CounterPage() {
       } catch (e) {}
       setOrderSuccess({ orderNumber: res.data.data.orderNumber, change });
 
-      // RESET SEMUA STATE DI SINI:
       clearCart();
-      setAmountPaid(0); // Reset amountPaid ke 0
-      setAmountDisplay(""); // Reset display ke kosong
-      setPaymentMethod("CASH"); // Reset payment method ke default
+      setAmountPaid(0);
+      setAmountDisplay("");
+      setPaymentMethod("CASH");
 
       setTimeout(() => setOrderSuccess(null), 4000);
     } catch (err) {

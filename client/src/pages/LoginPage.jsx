@@ -22,7 +22,6 @@ export default function LoginPage() {
 
     if (result.success) {
       const { user } = useAuthStore.getState();
-      // REDIRECT BASED ON ROLE
       if (user?.role === "ADMIN") {
         navigate("/dashboard");
       } else {

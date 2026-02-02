@@ -45,7 +45,7 @@ model Category {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
-  icon        String? // emoji or icon name
+  icon        String?
   order       Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -59,7 +59,7 @@ model Product {
   id          String   @id @default(cuid())
   name        String   @unique
   description String?
-  price       Int // dalam rupiah
+  price       Int
   image       String?
   isAvailable Boolean  @default(true)
   categoryId  String
@@ -74,7 +74,7 @@ model Product {
 
 model Order {
   id            String        @id @default(cuid())
-  orderNumber   String        @unique // TMA-20240131-001
+  orderNumber   String        @unique
   subtotal      Int
   tax           Int           @default(0)
   discount      Int           @default(0)
@@ -99,8 +99,8 @@ model OrderItem {
   orderId   String
   productId String
   quantity  Int
-  price     Int // price at time of order
-  notes     String? // custom request (es batu, gula, dll)
+  price     Int
+  notes     String?
   createdAt DateTime @default(now())
 
   order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)

@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting database seed...");
+  console.log("Starting database seed...");
 
   // Create users
   const hashedPassword = await bcrypt.hash("admin123", 10);
@@ -166,8 +166,8 @@ async function main() {
     },
   });
 
-  console.log("✅ Sample order created:", sampleOrder.orderNumber);
-  console.log("🎉 Database seeding completed!");
+  console.log("Sample order created:", sampleOrder.orderNumber);
+  console.log("Database seeding completed!");
 }
 
 main()

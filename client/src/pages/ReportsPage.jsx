@@ -149,7 +149,6 @@ export default function ReportsPage() {
       });
       setCloseBookResult(res.data.data);
     } catch (e) {
-      // kalau endpoint belum ada, generate summary dari data lokal
       const now = new Date();
       setCloseBookResult({
         period: closeBookPeriod,

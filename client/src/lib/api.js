@@ -12,7 +12,7 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(`➡️ ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -23,7 +23,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ ${response.status} ${response.config.url}`);
+    console.log(`${response.status} ${response.config.url}`);
     return response;
   },
   (error) => {
@@ -31,11 +31,11 @@ api.interceptors.response.use(
       `❌ ${error.response?.status || "Network"} ${error.config?.url}`,
     );
 
-    if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      window.location.href = "/login";
-    }
+    //if (error.response?.status === 401) {
+    //  localStorage.removeItem("token");
+    //  localStorage.removeItem("user");
+    //  window.location.href = "/";
+    //}
 
     return Promise.reject(error);
   },

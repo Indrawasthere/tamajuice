@@ -4,7 +4,6 @@ const printerTypes = ThermalPrinter.Types;
 
 export async function printReceipt(order) {
   try {
-    // Check if printer is configured
     if (!process.env.PRINTER_TYPE) {
       console.log("Printer not configured, skipping print...");
       console.log("Receipt data:", JSON.stringify(order, null, 2));

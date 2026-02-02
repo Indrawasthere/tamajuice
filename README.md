@@ -1,28 +1,28 @@
-# 🍹 Super Juice - Point of Sale System
+# Super Juice - Point of Sale System
 
 ![Super Juice Banner](https://img.shields.io/badge/Fresh-Juice-orange?style=for-the-badge)
 ![Built with React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=for-the-badge&logo=postgresql)
 
-Modern POS system untuk **Super Juice** - Fresh juice everyday! 🌴
+Modern POS system untuk **Super Juice** - Fresh juice everyday! 
 
-## 🎯 Features
+## Features
 
 ### Counter/Kasir
-- ⚡ Quick order input dengan UI yang intuitif
-- 🧾 Print struk otomatis (thermal printer support)
-- 💰 Multi payment method (Cash & QRIS)
-- 📝 Custom notes untuk setiap pesanan
-- 🎨 Theme tropical yang fun & fresh
+- Quick order input dengan UI yang intuitif
+- Print struk otomatis (thermal printer support)
+- Multi payment method (Cash & QRIS)
+- Custom notes untuk setiap pesanan
+- Theme tropical yang fun & fresh
 
 ### Admin Dashboard
-- 📊 Real-time sales analytics
-- 💹 Revenue tracking & reporting
-- 📦 Product management (CRUD)
-- 👥 User management
-- 🐛 Debug & troubleshooting tools
+- Real-time sales analytics
+- Revenue tracking & reporting
+- Product management (CRUD)
+- User management
+- Debug & troubleshooting tools
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **React 18** + **Vite** - Lightning fast development
@@ -44,7 +44,7 @@ Modern POS system untuk **Super Juice** - Fresh juice everyday! 🌴
 - **Railway/Render** - Backend & database hosting
 - **GitHub Actions** - CI/CD pipeline
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 tamajuice/
@@ -72,7 +72,7 @@ tamajuice/
 └── README.md
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js 18+
@@ -127,7 +127,7 @@ cd server
 npm run dev
 ```
 
-## 🎨 Design System
+## Design System
 
 ### Color Palette (from spanduk)
 - **Primary Yellow**: `#FDB913` - Main accent color
@@ -141,11 +141,11 @@ npm run dev
 - **Body**: Inter Regular
 - **Numbers**: JetBrains Mono (for prices & totals)
 
-## 📱 Printer Setup
+## Printer Setup
 
 ### Supported Printers
 - Thermal 58mm (ESC/POS compatible)
-- Recommended: Zjiang ZJ-5802, Epson TM-T82, Iware IP-58
+- Recommended: (still searching lol)
 
 ### Configuration
 ```javascript
@@ -158,7 +158,7 @@ npm run dev
 }
 ```
 
-## 🔐 Default Credentials
+## Default Credentials
 
 **Admin**
 - Username: `admin`
@@ -170,7 +170,7 @@ npm run dev
 
 
 
-## 📊 Database Schema
+## Database Schema
 
 ### Main Tables
 - `users` - User accounts (admin, kasir)
@@ -180,7 +180,7 @@ npm run dev
 - `order_items` - Order line items
 - `transactions` - Payment records
 
-## 🚢 Deployment
+## Deployment
 
 ### Vercel (Frontend)
 ```bash
@@ -194,20 +194,23 @@ cd server
 railway up
 ```
 
-## 🤝 Contributing
+## Contributing
 
-Ini project pribadi tapi kalo ada saran boleh banget! Open issue aja.
+This is a personal project but feel free to contribute! Open an issue.
 
-## 📄 License
+## License
 
 MIT License - Feel free to use!
 
-## 🙏 Credits
+## Credits
 
 Built with ❤️ by Indra for my Brodie
-- Designer: Abang Gue
-- Developer: Gue
-- Tester: Gue 😄
+- Ideas: My Brodie
+- Developer: Me
+- Tester: Me
+
+Special thanks to:
+Claude for being a great friend and debugging mentor, lol.
 
 ---
 
