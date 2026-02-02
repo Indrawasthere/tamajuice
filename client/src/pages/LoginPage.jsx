@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import useAuthStore from "../store/authStore";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");

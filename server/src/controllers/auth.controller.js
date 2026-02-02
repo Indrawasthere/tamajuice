@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -11,25 +11,25 @@ export const login = async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Username and password are required'
+        message: "Username and password are required",
       });
     }
 
     const user = await prisma.user.findUnique({
-      where: { username }
+      where: { username },
     });
 
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
-        message: 'Account is deactivated'
+        message: "Account is deactivated",
       });
     }
 
@@ -38,33 +38,39 @@ export const login = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials",
       });
     }
 
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "7d" },
     );
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.json({
       success: true,
       data: {
-        token,
         user: {
           id: user.id,
           username: user.username,
           name: user.name,
-          role: user.role
-        }
-      }
+          role: user.role,
+        },
+      },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: 'Login failed'
+      message: "Login failed",
     });
   }
 };
@@ -72,7 +78,7 @@ export const login = async (req, res) => {
 export const me = async (req, res) => {
   res.json({
     success: true,
-    data: req.user
+    data: req.user,
   });
 };
 
@@ -83,20 +89,23 @@ export const changePassword = async (req, res) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Current and new password are required'
+        message: "Current and new password are required",
       });
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: req.user.id }
+      where: { id: req.user.id },
     });
 
-    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: 'Current password is incorrect'
+        message: "Current password is incorrect",
       });
     }
 
@@ -104,18 +113,18 @@ export const changePassword = async (req, res) => {
 
     await prisma.user.update({
       where: { id: req.user.id },
-      data: { password: hashedPassword }
+      data: { password: hashedPassword },
     });
 
     res.json({
       success: true,
-      message: 'Password changed successfully'
+      message: "Password changed successfully",
     });
   } catch (error) {
-    console.error('Change password error:', error);
+    console.error("Change password error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to change password'
+      message: "Failed to change password",
     });
   }
 };

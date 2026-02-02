@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
-import { useAuthStore } from "../store/authStore";
+import useAuthStore from "../store/authStore";
 import { formatRupiah } from "../lib/format";
 import api from "../lib/api";
 

@@ -1,70 +1,85 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import api from '../lib/api';
+import { create } from "zustand";
+import api from "../lib/api";
 
-export const useAuthStore = create(
-  persist(
-    (set, get) => ({
+const useAuthStore = create((set, get) => ({
+  user: null,
+  token: localStorage.getItem("token"),
+  isAuthenticated: !!localStorage.getItem("token"),
+  loading: false,
+
+  login: async (username, password) => {
+    set({ loading: true });
+
+    try {
+      const res = await api.post("/auth/login", { username, password });
+
+      const { token, user } = res.data.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      set({
+        user,
+        token,
+        isAuthenticated: true,
+        loading: false,
+      });
+
+      return true;
+    } catch (err) {
+      set({ loading: false });
+      throw err;
+    }
+  },
+
+  logout: () => {
+    console.log("🟡 Logging out...");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    set({
       user: null,
       token: null,
       isAuthenticated: false,
+    });
+  },
 
-      login: async (username, password) => {
-        try {
-          const response = await api.post('/auth/login', { username, password });
-          const { token, user } = response.data.data;
+  checkAuth: async () => {
+    const token = localStorage.getItem("token");
+    console.log("🟡 checkAuth - token exists:", !!token);
 
-          localStorage.setItem('token', token);
-          localStorage.setItem('user', JSON.stringify(user));
-
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-          });
-
-          return { success: true };
-        } catch (error) {
-          return {
-            success: false,
-            message: error.response?.data?.message || 'Login failed',
-          };
-        }
-      },
-
-      logout: () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-
-        set({
-          user: null,
-          token: null,
-          isAuthenticated: false,
-        });
-      },
-
-      checkAuth: async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-          return false;
-        }
-
-        try {
-          const response = await api.get('/auth/me');
-          set({
-            user: response.data.data,
-            token,
-            isAuthenticated: true,
-          });
-          return true;
-        } catch (error) {
-          get().logout();
-          return false;
-        }
-      },
-    }),
-    {
-      name: 'auth-storage',
+    if (!token) {
+      set({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+      });
+      return false;
     }
-  )
-);
+
+    try {
+      const res = await api.get("/auth/me");
+
+      set({
+        user: res.data.data,
+        token,
+        isAuthenticated: true,
+      });
+
+      return true;
+    } catch (err) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      set({
+        user: null,
+        token: null,
+        isAuthenticated: false,
+      });
+
+      return false;
+    }
+  },
+}));
+
+export default useAuthStore;

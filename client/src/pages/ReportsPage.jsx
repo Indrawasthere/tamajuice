@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
+import useAuthStore from "../store/authStore";
 import { formatRupiah } from "../lib/format";
 import Sidebar from "../components/Sidebar";
 import api from "../lib/api";

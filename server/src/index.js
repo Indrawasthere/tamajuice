@@ -3,6 +3,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 
 // Routes
 import authRoutes from "./routes/auth.routes.js";
@@ -18,11 +19,17 @@ import { errorHandler } from "./middleware/error.middleware.js";
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8080;
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+const corsOptions = {
+  origin: ["http://localhost:3000", "https://tamajuice.vercel.app"],
+  credentials: false,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
@@ -31,7 +38,7 @@ app.use(morgan("dev"));
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
-    message: "Super Juice API is running! 🍹",
+    message: "Super Juice API is running!",
     timestamp: new Date().toISOString(),
   });
 });
