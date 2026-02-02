@@ -33,7 +33,7 @@ export async function printReceipt(order) {
     printer.alignCenter();
     printer.setTextSize(1, 1);
     printer.bold(true);
-    printer.println("JUS BUAH TAMA");
+    printer.println("Super Juice");
     printer.bold(false);
     printer.println("Fresh juice everyday");
     printer.println("WA: 0823-1233-5006");

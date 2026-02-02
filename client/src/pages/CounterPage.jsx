@@ -5,19 +5,6 @@ import { useAuthStore } from "../store/authStore";
 import { formatRupiah } from "../lib/format";
 import api from "../lib/api";
 
-const NAV_ITEMS = [
-  { icon: "", label: "Counter", path: "/", activeColor: "#FDB913" },
-  {
-    icon: "",
-    label: "Dashboard",
-    path: "/dashboard",
-    activeColor: "#7A9B5E",
-  },
-  { icon: "", label: "Orders", path: "/orders", activeColor: "#60a5fa" },
-  { icon: "", label: "Products", path: "/products", activeColor: "#f97316" },
-  { icon: "", label: "Reports", path: "/reports", activeColor: "#a78bfa" },
-];
-
 export default function CounterPage() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -125,16 +112,12 @@ export default function CounterPage() {
     return () => clearInterval(interval);
   }, []);
 
-  // Tambah function ini di dalam CounterPage component (sebelum return):
   const formatCurrencyInput = (value) => {
-    // Hapus semua karakter non-digit
     const numeric = value.replace(/\D/g, "");
 
-    // Convert ke number
     const num = parseInt(numeric || "0");
     setAmountPaid(num);
 
-    // Format untuk display dengan pemisah ribuan
     if (num === 0) {
       setAmountDisplay("");
     } else {
@@ -190,7 +173,7 @@ export default function CounterPage() {
                 margin: 0,
               }}
             >
-              Counter
+              Counter - Super Juice
             </h1>
             <span
               style={{
@@ -888,7 +871,7 @@ export default function CounterPage() {
                       placeholder="0"
                       style={{
                         width: "100%",
-                        padding: "12px 12px 12px 40px", // Tambah padding kiri untuk muat "Rp"
+                        padding: "12px 12px 12px 40px",
                         borderRadius: 12,
                         border: "2px solid #e5e7eb",
                         fontSize: 20,

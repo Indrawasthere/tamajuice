@@ -1,4 +1,4 @@
-# 🍹 JUS BUAH TAMA - COMPLETE PROJECT GUIDE
+# 🍹 Super Juice - COMPLETE PROJECT GUIDE
 
 ## 📦 DELIVERABLES - Apa Aja yang Gue Kasih
 
@@ -382,5 +382,5 @@ Good luck dengan bisnis jus lo bre! Semoga laris manis! 🍹💰
 
 ---
 
-**Built with ❤️ for Jus Buah Tama**
+**Built with ❤️ for Super Juice**
 *Fresh juice everyday!*

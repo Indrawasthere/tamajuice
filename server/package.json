@@ -2,7 +2,7 @@
   "name": "tama-pos-server",
   "version": "1.0.0",
   "type": "module",
-  "description": "Backend API for Jus Buah Tama POS",
+  "description": "Backend API for Super Juice POS",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon src/index.js",
@@ -21,6 +21,7 @@
     "express-validator": "^7.0.1",
     "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.563.0",
     "morgan": "^1.10.0",
     "node-thermal-printer": "^4.4.5"
   },

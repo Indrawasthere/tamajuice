@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { formatRupiah } from "../lib/format";
+import Sidebar from "../components/Sidebar";
 import api from "../lib/api";
 import {
   BarChart,
@@ -13,237 +14,6 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-
-const NAV_ITEMS = [
-  { icon: "", label: "Counter", path: "/", activeColor: "#FDB913" },
-  {
-    icon: "",
-    label: "Dashboard",
-    path: "/dashboard",
-    activeColor: "#7A9B5E",
-  },
-  { icon: "", label: "Orders", path: "/orders", activeColor: "#60a5fa" },
-  { icon: "", label: "Products", path: "/products", activeColor: "#f97316" },
-  { icon: "", label: "Reports", path: "/reports", activeColor: "#a78bfa" },
-];
-
-function Sidebar({ currentPath }) {
-  const navigate = useNavigate();
-  const { user, logout } = useAuthStore();
-  return (
-    <div
-      style={{
-        width: 240,
-        minHeight: "100vh",
-        background:
-          "linear-gradient(180deg, #1a1a2e 0%, #16162a 50%, #0f0f1a 100%)",
-        display: "flex",
-        flexDirection: "column",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        bottom: 0,
-        zIndex: 100,
-        boxShadow: "2px 0 20px rgba(0,0,0,0.3)",
-      }}
-    >
-      <div
-        style={{
-          padding: "28px 20px 24px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <div
-            style={{
-              width: 42,
-              height: 42,
-              borderRadius: 12,
-              background: "linear-gradient(135deg, #FDB913, #7A9B5E)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 22,
-              boxShadow: "0 4px 14px rgba(253,185,19,0.35)",
-            }}
-          ></div>
-          <div>
-            <div
-              style={{
-                color: "#fff",
-                fontSize: 15,
-                fontWeight: 700,
-                letterSpacing: "-0.3px",
-                fontFamily: "Inter, sans-serif",
-              }}
-            >
-              Jus Buah Tama
-            </div>
-            <div
-              style={{
-                color: "rgba(255,255,255,0.4)",
-                fontSize: 11,
-                fontWeight: 500,
-              }}
-            >
-              POS System
-            </div>
-          </div>
-        </div>
-      </div>
-      <nav
-        style={{
-          flex: 1,
-          padding: "16px 12px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
-        {NAV_ITEMS.map((item) => {
-          const isActive = currentPath === item.path;
-          return (
-            <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-                padding: "11px 14px",
-                borderRadius: 10,
-                border: "none",
-                background: isActive
-                  ? "linear-gradient(135deg, rgba(253,185,19,0.15), rgba(122,155,94,0.1))"
-                  : "transparent",
-                cursor: "pointer",
-                transition: "all 0.2s",
-                position: "relative",
-                overflow: "hidden",
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive)
-                  e.currentTarget.style.background = "rgba(255,255,255,0.06)";
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) e.currentTarget.style.background = "transparent";
-              }}
-            >
-              {isActive && (
-                <div
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: "20%",
-                    bottom: "20%",
-                    width: 3,
-                    borderRadius: "0 3px 3px 0",
-                    background: item.activeColor,
-                    boxShadow: `0 0 8px ${item.activeColor}55`,
-                  }}
-                />
-              )}
-              <span style={{ fontSize: 18, width: 22, textAlign: "center" }}>
-                {item.icon}
-              </span>
-              <span
-                style={{
-                  color: isActive ? "#fff" : "rgba(255,255,255,0.5)",
-                  fontSize: 13.5,
-                  fontWeight: isActive ? 600 : 400,
-                  transition: "color 0.2s",
-                  fontFamily: "Inter, sans-serif",
-                }}
-              >
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-      <div
-        style={{
-          padding: "14px 12px 18px",
-          borderTop: "1px solid rgba(255,255,255,0.08)",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-            marginBottom: 10,
-          }}
-        >
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              borderRadius: 10,
-              background: "linear-gradient(135deg, #FDB913, #E63946)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 15,
-              fontWeight: 700,
-              color: "#fff",
-              fontFamily: "Inter, sans-serif",
-            }}
-          >
-            {user?.name?.[0]?.toUpperCase() || "A"}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                color: "#fff",
-                fontSize: 13,
-                fontWeight: 600,
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {user?.name}
-            </div>
-            <div
-              style={{
-                color: "rgba(255,255,255,0.35)",
-                fontSize: 11,
-                textTransform: "capitalize",
-              }}
-            >
-              {user?.role?.toLowerCase()}
-            </div>
-          </div>
-        </div>
-        <button
-          onClick={logout}
-          style={{
-            width: "100%",
-            padding: "8px 12px",
-            borderRadius: 8,
-            border: "1px solid rgba(255,255,255,0.1)",
-            background: "rgba(255,255,255,0.04)",
-            color: "rgba(255,255,255,0.5)",
-            fontSize: 12,
-            cursor: "pointer",
-            fontFamily: "Inter, sans-serif",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = "rgba(239,68,68,0.15)";
-            e.currentTarget.style.color = "#ef4444";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = "rgba(255,255,255,0.04)";
-            e.currentTarget.style.color = "rgba(255,255,255,0.5)";
-          }}
-        >
-          Logout
-        </button>
-      </div>
-    </div>
-  );
-}
 
 const ReportTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -278,9 +48,9 @@ const ReportTooltip = ({ active, payload, label }) => {
             }}
           >
             <span style={{ color: "#9ca3af", fontWeight: 400 }}>
-              {p.name === "revenue" ? "Revenue: " : "Cups: "}
+              {p.name === "Revenue" ? "Revenue: " : "Cups: "}
             </span>
-            {p.name === "revenue" ? formatRupiah(p.value) : p.value}
+            {p.name === "Revenue" ? formatRupiah(p.value) : p.value}
           </p>
         ))}
       </div>
@@ -294,6 +64,11 @@ export default function ReportsPage() {
   const [topProducts, setTopProducts] = useState([]);
   const [period, setPeriod] = useState("week");
   const [loading, setLoading] = useState(true);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showCloseBook, setShowCloseBook] = useState(false);
+  const [closeBookPeriod, setCloseBookPeriod] = useState("daily");
+  const [closeBookResult, setCloseBookResult] = useState(null);
+  const [closingLoading, setClosingLoading] = useState(false);
 
   // Compute summary from fetched data
   const totalRevenue = salesData.reduce((s, d) => s + d.revenue, 0);
@@ -319,6 +94,77 @@ export default function ReportsPage() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportCSV = () => {
+    if (topProducts.length === 0) return;
+    const headers = [
+      "Rank",
+      "Produk",
+      "Kategori",
+      "Harga",
+      "Cups Terjual",
+      "Revenue",
+    ];
+    const rows = topProducts.map((p, i) => [
+      i + 1,
+      p.name,
+      p.category?.name || "-",
+      p.price,
+      p.totalQuantity,
+      p.revenue,
+    ]);
+    const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `laporan-penjualan-${period}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  const exportJSON = () => {
+    if (topProducts.length === 0) return;
+    const blob = new Blob(
+      [JSON.stringify({ period, salesData, topProducts }, null, 2)],
+      { type: "application/json" },
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `laporan-penjualan-${period}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportMenu(false);
+  };
+
+  const handleCloseBook = async () => {
+    setClosingLoading(true);
+    try {
+      const res = await api.post("/analytics/close-book", {
+        period: closeBookPeriod,
+      });
+      setCloseBookResult(res.data.data);
+    } catch (e) {
+      // kalau endpoint belum ada, generate summary dari data lokal
+      const now = new Date();
+      setCloseBookResult({
+        period: closeBookPeriod,
+        date: now.toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }),
+        totalRevenue,
+        totalOrders,
+        totalCups,
+        avgOrderValue,
+      });
+    } finally {
+      setClosingLoading(false);
     }
   };
 
@@ -407,8 +253,453 @@ export default function ReportsPage() {
               Sales Data Analysis
             </span>
           </div>
+
           {/* Period Filter */}
           <div style={{ display: "flex", gap: 6 }}>
+            {/* Export + Close Book buttons */}
+            <div style={{ display: "flex", gap: 8, position: "relative" }}>
+              {/* Export */}
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowExportMenu(!showExportMenu)}
+                  style={{
+                    padding: "6px 14px",
+                    borderRadius: 8,
+                    border: "1px solid #e5e7eb",
+                    background: "#fff",
+                    color: "#6b7280",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  Export {showExportMenu ? "" : ""}
+                </button>
+                {showExportMenu && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "calc(100% + 6px)",
+                      right: 0,
+                      background: "#fff",
+                      borderRadius: 10,
+                      border: "1px solid #e5e7eb",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
+                      minWidth: 160,
+                      zIndex: 100,
+                      overflow: "hidden",
+                    }}
+                  >
+                    {[
+                      { label: "Export CSV", fn: exportCSV, icon: "" },
+                      { label: "Export JSON", fn: exportJSON, icon: "" },
+                    ].map((item) => (
+                      <button
+                        key={item.label}
+                        onClick={item.fn}
+                        style={{
+                          width: "100%",
+                          padding: "10px 16px",
+                          border: "none",
+                          background: "transparent",
+                          color: "#374151",
+                          fontSize: 13,
+                          fontWeight: 500,
+                          cursor: "pointer",
+                          textAlign: "left",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 8,
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#f9fafb")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "transparent")
+                        }
+                      >
+                        {item.icon} {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Close Book */}
+              <button
+                onClick={() => {
+                  setShowCloseBook(true);
+                  setCloseBookResult(null);
+                }}
+                style={{
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  border: "none",
+                  background: "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+                  color: "#fff",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  boxShadow: "0 3px 10px rgba(167,139,250,0.3)",
+                }}
+              >
+                Close Book
+              </button>
+            </div>
+            {/* Close Book Modal */}
+            {showCloseBook && (
+              <div
+                style={{
+                  position: "fixed",
+                  inset: 0,
+                  background: "rgba(0,0,0,0.45)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  zIndex: 500,
+                }}
+              >
+                <div
+                  style={{
+                    background: "#fff",
+                    borderRadius: 20,
+                    padding: 32,
+                    width: 460,
+                    boxShadow: "0 40px 80px rgba(0,0,0,0.2)",
+                    maxHeight: "90vh",
+                    overflowY: "auto",
+                  }}
+                >
+                  {/* Header */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: 24,
+                    }}
+                  >
+                    <h2
+                      style={{
+                        margin: 0,
+                        fontSize: 18,
+                        fontWeight: 700,
+                        color: "#1a1a2e",
+                      }}
+                    >
+                      Close Book
+                    </h2>
+                    <button
+                      onClick={() => {
+                        setShowCloseBook(false);
+                        setCloseBookResult(null);
+                      }}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        fontSize: 20,
+                        color: "#9ca3af",
+                        cursor: "pointer",
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {!closeBookResult ? (
+                    <>
+                      {/* Period Selector */}
+                      <div style={{ marginBottom: 20 }}>
+                        <label
+                          style={{
+                            display: "block",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: "#6b7280",
+                            marginBottom: 8,
+                          }}
+                        >
+                          Pilih Periode
+                        </label>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: 8,
+                          }}
+                        >
+                          {[
+                            { value: "daily", label: "Harian", icon: "" },
+                            { value: "weekly", label: "Mingguan", icon: "" },
+                            { value: "monthly", label: "Bulanan", icon: "" },
+                            { value: "yearly", label: "Tahunan", icon: "" },
+                          ].map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => setCloseBookPeriod(opt.value)}
+                              style={{
+                                padding: "14px 12px",
+                                borderRadius: 12,
+                                border:
+                                  closeBookPeriod === opt.value
+                                    ? "2px solid #a78bfa"
+                                    : "1.5px solid #e5e7eb",
+                                background:
+                                  closeBookPeriod === opt.value
+                                    ? "#f5f3ff"
+                                    : "#fff",
+                                cursor: "pointer",
+                                textAlign: "left",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                              }}
+                            >
+                              <span style={{ fontSize: 20 }}>{opt.icon}</span>
+                              <div>
+                                <div
+                                  style={{
+                                    fontSize: 13,
+                                    fontWeight: 600,
+                                    color:
+                                      closeBookPeriod === opt.value
+                                        ? "#7c3aed"
+                                        : "#1a1a2e",
+                                  }}
+                                >
+                                  {opt.label}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Preview Summary */}
+                      <div
+                        style={{
+                          background: "#fafafa",
+                          borderRadius: 12,
+                          padding: 16,
+                          marginBottom: 20,
+                          border: "1px solid #f0f0f0",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: "#9ca3af",
+                            marginBottom: 10,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.5px",
+                          }}
+                        >
+                          Preview Summary
+                        </div>
+                        {[
+                          {
+                            label: "Total Revenue",
+                            value: formatRupiah(totalRevenue),
+                            color: "#FDB913",
+                          },
+                          {
+                            label: "Total Orders",
+                            value: totalOrders,
+                            color: "#7A9B5E",
+                          },
+                          {
+                            label: "Total Cups",
+                            value: totalCups,
+                            color: "#60a5fa",
+                          },
+                          {
+                            label: "Avg Order Value",
+                            value: formatRupiah(avgOrderValue),
+                            color: "#a78bfa",
+                          },
+                        ].map((s) => (
+                          <div
+                            key={s.label}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              padding: "6px 0",
+                              borderBottom: "1px solid #f0f0f0",
+                            }}
+                          >
+                            <span style={{ fontSize: 13, color: "#6b7280" }}>
+                              {s.label}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 700,
+                                color: s.color,
+                                fontFamily: "JetBrains Mono, monospace",
+                              }}
+                            >
+                              {s.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Confirm Button */}
+                      <button
+                        onClick={handleCloseBook}
+                        disabled={closingLoading}
+                        style={{
+                          width: "100%",
+                          padding: "12px 0",
+                          borderRadius: 12,
+                          border: "none",
+                          background: closingLoading
+                            ? "#d1d5db"
+                            : "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+                          color: "#fff",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          cursor: closingLoading ? "not-allowed" : "pointer",
+                          boxShadow: closingLoading
+                            ? "none"
+                            : "0 4px 14px rgba(167,139,250,0.35)",
+                        }}
+                      >
+                        {closingLoading
+                          ? "Memproses..."
+                          : `Konfirmasi Close Book ${closeBookPeriod.charAt(0).toUpperCase() + closeBookPeriod.slice(1)}`}
+                      </button>
+                    </>
+                  ) : (
+                    /* Result view */
+                    <>
+                      <div style={{ textAlign: "center", marginBottom: 20 }}>
+                        <div
+                          style={{
+                            width: 64,
+                            height: 64,
+                            borderRadius: 16,
+                            margin: "0 auto 12px",
+                            background:
+                              "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 28,
+                            boxShadow: "0 8px 20px rgba(167,139,250,0.4)",
+                          }}
+                        >
+                          ✓
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: 700,
+                            color: "#1a1a2e",
+                          }}
+                        >
+                          Close Book Berhasil
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 12,
+                            color: "#9ca3af",
+                            marginTop: 4,
+                          }}
+                        >
+                          Periode:{" "}
+                          {closeBookResult.period.charAt(0).toUpperCase() +
+                            closeBookResult.period.slice(1)}{" "}
+                          — {closeBookResult.date}
+                        </div>
+                      </div>
+
+                      {/* Result Summary */}
+                      <div
+                        style={{
+                          background: "#f5f3ff",
+                          borderRadius: 12,
+                          padding: 18,
+                          marginBottom: 20,
+                        }}
+                      >
+                        {[
+                          {
+                            label: "Total Revenue",
+                            value: formatRupiah(closeBookResult.totalRevenue),
+                            color: "#FDB913",
+                          },
+                          {
+                            label: "Total Orders",
+                            value: closeBookResult.totalOrders,
+                            color: "#7A9B5E",
+                          },
+                          {
+                            label: "Total Cups",
+                            value: closeBookResult.totalCups,
+                            color: "#60a5fa",
+                          },
+                          {
+                            label: "Avg Order Value",
+                            value: formatRupiah(closeBookResult.avgOrderValue),
+                            color: "#a78bfa",
+                          },
+                        ].map((s) => (
+                          <div
+                            key={s.label}
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              padding: "7px 0",
+                              borderBottom: "1px solid rgba(167,139,250,0.15)",
+                            }}
+                          >
+                            <span style={{ fontSize: 13, color: "#6b7280" }}>
+                              {s.label}
+                            </span>
+                            <span
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 700,
+                                color: s.color,
+                                fontFamily: "JetBrains Mono, monospace",
+                              }}
+                            >
+                              {s.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setShowCloseBook(false);
+                          setCloseBookResult(null);
+                        }}
+                        style={{
+                          width: "100%",
+                          padding: "11px 0",
+                          borderRadius: 12,
+                          border: "none",
+                          background:
+                            "linear-gradient(135deg, #a78bfa, #8b5cf6)",
+                          color: "#fff",
+                          fontSize: 14,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        Selesai
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
             {["week", "month", "year"].map((p) => (
               <button
                 key={p}

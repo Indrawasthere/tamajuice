@@ -1,4 +1,4 @@
-# 🚀 SETUP INSTRUCTIONS - JUS BUAH TAMA POS
+# 🚀 SETUP INSTRUCTIONS - Super Juice POS
 
 ## Prerequisites Yang Lo Butuhin Bre:
 - Node.js 18+ (check: `node --version`)

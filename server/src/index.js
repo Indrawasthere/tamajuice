@@ -31,7 +31,7 @@ app.use(morgan("dev"));
 app.get("/health", (req, res) => {
   res.json({
     status: "OK",
-    message: "Jus Buah Tama API is running! 🍹",
+    message: "Super Juice API is running! 🍹",
     timestamp: new Date().toISOString(),
   });
 });
@@ -59,7 +59,7 @@ app.use(errorHandler);
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`Jus Buah Tama POS API is ready!`);
+  console.log(`Super Juice POS API is ready!`);
 });
 
 export default app;

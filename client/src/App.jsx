@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "./store/authStore";
+import AdminRoute from "./components/AdminRoute";
 
 // Pages
 import LoginPage from "./pages/LoginPage";
@@ -10,8 +11,11 @@ import OrdersPage from "./pages/OrdersPage";
 import ReportsPage from "./pages/ReportsPage";
 
 function PrivateRoute({ children }) {
-  const { isAuthenticated } = useAuthStore();
-  return isAuthenticated ? children : <Navigate to="/login" />;
+  const { isAuthenticated, user } = useAuthStore();
+  if (!isAuthenticated) return <Navigate to="/login" />;
+  if (user?.role === "ADMIN" && window.location.pathname === "/")
+    return <Navigate to="/dashboard" />;
+  return children;
 }
 
 function App() {
@@ -31,36 +35,36 @@ function App() {
       <Route
         path="/dashboard"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <DashboardPage />
-          </PrivateRoute>
+          </AdminRoute>
         }
       />
 
       <Route
         path="/products"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <ProductsPage />
-          </PrivateRoute>
+          </AdminRoute>
         }
       />
 
       <Route
         path="/orders"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <OrdersPage />
-          </PrivateRoute>
+          </AdminRoute>
         }
       />
 
       <Route
         path="/reports"
         element={
-          <PrivateRoute>
+          <AdminRoute>
             <ReportsPage />
-          </PrivateRoute>
+          </AdminRoute>
         }
       />
     </Routes>

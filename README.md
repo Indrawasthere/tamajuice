@@ -1,10 +1,10 @@
-# 🍹 Jus Buah Tama - Point of Sale System
+# 🍹 Super Juice - Point of Sale System
 
-![Jus Buah Tama Banner](https://img.shields.io/badge/Fresh-Juice-orange?style=for-the-badge)
+![Super Juice Banner](https://img.shields.io/badge/Fresh-Juice-orange?style=for-the-badge)
 ![Built with React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue?style=for-the-badge&logo=postgresql)
 
-Modern POS system untuk **Jus Buah Tama** - Fresh juice everyday! 🌴
+Modern POS system untuk **Super Juice** - Fresh juice everyday! 🌴
 
 ## 🎯 Features
 
@@ -211,4 +211,4 @@ Built with ❤️ by Indra & Team Tama
 
 ---
 
-**Jus Buah Tama** - Fresh juice everyday! 🍹🌴
+**Super Juice** - Fresh juice everyday! 🍹🌴
