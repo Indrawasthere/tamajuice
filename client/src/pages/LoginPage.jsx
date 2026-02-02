@@ -18,13 +18,19 @@ export default function LoginPage() {
 
     const result = await login(username, password);
 
+    setLoading(false);
+
     if (result.success) {
-      navigate("/");
+      const { user } = useAuthStore.getState();
+      // REDIRECT BASED ON ROLE
+      if (user?.role === "ADMIN") {
+        navigate("/dashboard");
+      } else {
+        navigate("/");
+      }
     } else {
       setError(result.message);
     }
-
-    setLoading(false);
   };
 
   return (

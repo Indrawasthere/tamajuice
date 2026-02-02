@@ -1,10 +1,9 @@
 import { create } from "zustand";
-import api from "../lib/api";
 
-const useAuthStore = create((set, get) => ({
+const useAuthStore = create((set) => ({
   user: null,
-  token: localStorage.getItem("token"),
-  isAuthenticated: !!localStorage.getItem("token"),
+  token: null,
+  isAuthenticated: false,
   loading: false,
 
   login: async (username, password) => {
@@ -12,7 +11,6 @@ const useAuthStore = create((set, get) => ({
 
     try {
       const res = await api.post("/auth/login", { username, password });
-
       const { token, user } = res.data.data;
 
       localStorage.setItem("token", token);
@@ -25,59 +23,32 @@ const useAuthStore = create((set, get) => ({
         loading: false,
       });
 
-      return true;
+      return { success: true };
     } catch (err) {
       set({ loading: false });
-      throw err;
+      return {
+        success: false,
+        message: err.response?.data?.message || "Login failed",
+      };
     }
   },
 
   logout: () => {
-    console.log("🟡 Logging out...");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
-    set({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-    });
+    set({ user: null, token: null, isAuthenticated: false });
   },
 
-  checkAuth: async () => {
+  checkAuth: () => {
     const token = localStorage.getItem("token");
-    console.log("🟡 checkAuth - token exists:", !!token);
+    const user = localStorage.getItem("user");
 
-    if (!token) {
+    if (token && user) {
       set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-      });
-      return false;
-    }
-
-    try {
-      const res = await api.get("/auth/me");
-
-      set({
-        user: res.data.data,
         token,
+        user: JSON.parse(user),
         isAuthenticated: true,
       });
-
-      return true;
-    } catch (err) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-      });
-
-      return false;
     }
   },
 }));
