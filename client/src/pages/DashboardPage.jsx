@@ -127,7 +127,7 @@ export default function DashboardPage() {
   const statCards = stats
     ? [
         {
-          label: "Revenue Hari Ini",
+          label: "Penghasilan Hari Ini",
           value: formatRupiah(stats.today.revenue),
           sub: `${stats.today.orders} Transaksi`,
           change: revenueChange,
@@ -136,7 +136,7 @@ export default function DashboardPage() {
           glow: "shadow-orange-200",
         },
         {
-          label: "Revenue Bulan Ini",
+          label: "Penghasilan Bulan Ini",
           value: formatRupiah(stats.thisMonth.revenue),
           sub: `${stats.thisMonth.orders} Transaksi`,
           change: null,
@@ -183,7 +183,7 @@ export default function DashboardPage() {
         <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-white/80 px-8 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-black tracking-tight text-slate-800">
-              Operational Dashboard
+              Dashboard
             </h1>
             <div className="flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black text-emerald-600 border border-emerald-100 uppercase tracking-tighter">
               <span className="relative flex h-2 w-2">
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                     vs Kemarin
                   </h3>
                   <p className="text-sm text-slate-400 font-medium">
-                    Perbandingan revenue per jam
+                    Perbandingan revenue per kemarin
                   </p>
                 </div>
               </div>
@@ -389,10 +389,10 @@ export default function DashboardPage() {
               className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col"
             >
               <h3 className="text-lg font-black text-slate-800 mb-1">
-                Payment Hari Ini
+                Pembayaran Hari Ini
               </h3>
               <p className="text-sm text-slate-400 font-medium mb-6">
-                Metode pembayaran terpopuler hari ini
+                Metode pembayaran terfavorit hari ini
               </p>
 
               <div className="flex-1 flex flex-col justify-center">
@@ -455,11 +455,9 @@ export default function DashboardPage() {
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
               <div>
                 <h3 className="text-lg font-black text-slate-800 tracking-tight">
-                  Best Seller Hari Ini
+                  Menu Terlaris Hari Ini
                 </h3>
-                <p className="text-sm text-slate-400 font-medium">
-                  Produk terlaris hari ini
-                </p>
+                <p className="text-sm text-slate-400 font-medium"></p>
               </div>
               <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
                 Laporan Lengkap <ArrowUpRight size={14} />
@@ -471,10 +469,10 @@ export default function DashboardPage() {
                 <thead>
                   <tr className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                     <th className="px-6 py-4"># RANK</th>
-                    <th className="px-6 py-4">PRODUCT NAME</th>
-                    <th className="px-6 py-4 text-center">CATEGORY</th>
-                    <th className="px-6 py-4 text-center">SOLD</th>
-                    <th className="px-6 py-4 text-right">REVENUE</th>
+                    <th className="px-6 py-4">NAMA PRODUK</th>
+                    <th className="px-6 py-4 text-center">KATEGORI</th>
+                    <th className="px-6 py-4 text-center">TERJUAL</th>
+                    <th className="px-6 py-4 text-right">PENGHASILAN</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -511,7 +509,7 @@ export default function DashboardPage() {
                             {p.totalQuantity}
                           </span>
                           <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                            Cups Sold
+                            Cups Terjual
                           </span>
                         </div>
                       </td>
@@ -536,7 +534,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h3 className="text-base font-black text-slate-800">
-                    ⚠️ Low Stock Alert
+                    Stok Produk
                   </h3>
                   <p className="text-xs text-slate-400 font-medium">
                     Produk yang saat ini tidak tersedia

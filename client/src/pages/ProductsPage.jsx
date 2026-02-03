@@ -146,10 +146,10 @@ export default function ProductsPage() {
           <div className="flex items-center gap-4">
             <div>
               <h1 className="text-xl font-black tracking-tight text-slate-800">
-                Product Management
+                Manajemen Produk
               </h1>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-1">
-                {products.length} Items in Inventory
+                {products.length} Items
               </p>
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function ProductsPage() {
             onClick={openCreate}
             className="flex items-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all"
           >
-            <Plus size={16} strokeWidth={3} /> Add New Product
+            <Plus size={16} strokeWidth={3} /> Tambah Produk Baru
           </motion.button>
         </header>
 
@@ -174,7 +174,7 @@ export default function ProductsPage() {
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search catalog..."
+                placeholder="Cari menu..."
                 className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-100 rounded-[1.25rem] text-sm font-bold outline-none shadow-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all"
               />
             </div>
@@ -243,13 +243,13 @@ export default function ProductsPage() {
                     {p.name}
                   </h3>
                   <p className="text-xs text-slate-400 font-medium mb-6 line-clamp-2 h-8">
-                    {p.description || "No description available"}
+                    {p.description || "Deskripsi tidak tersedia"}
                   </p>
 
                   <div className="flex items-end justify-between pt-4 border-t border-slate-50">
                     <div>
                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em] mb-1">
-                        Price per unit
+                        Harga per cup
                       </p>
                       <span className="text-xl font-black text-slate-900 tracking-tighter">
                         {formatRupiah(p.price)}
@@ -316,30 +316,30 @@ export default function ProductsPage() {
             >
               <div className="mb-8">
                 <h2 className="text-2xl font-black text-slate-800 tracking-tight">
-                  {editId ? "Edit Product" : "New Product"}
+                  {editId ? "Edit Produk" : "Tambah Produk"}
                 </h2>
                 <p className="text-sm text-slate-400 font-medium">
-                  Fill in the details for your catalog item
+                  Isi detail produk
                 </p>
               </div>
 
               <div className="space-y-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                    Product Name
+                    Nama Produk
                   </label>
                   <input
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none"
-                    placeholder="e.g. Avocado Juice Special"
+                    placeholder="e.g. Jus Buah Naga"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Price (IDR)
+                      Harga (IDR)
                     </label>
                     <input
                       type="number"
@@ -353,7 +353,7 @@ export default function ProductsPage() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                      Category
+                      Kategori
                     </label>
                     <select
                       value={form.categoryId}
@@ -374,7 +374,7 @@ export default function ProductsPage() {
 
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-                    Description
+                    Deskripsi
                   </label>
                   <textarea
                     value={form.description}
@@ -382,7 +382,7 @@ export default function ProductsPage() {
                       setForm({ ...form, description: e.target.value })
                     }
                     className="w-full px-6 py-4 bg-slate-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-amber-500/20 outline-none h-24 resize-none"
-                    placeholder="Describe your product..."
+                    placeholder="Deskripsi produk..."
                   />
                 </div>
 
@@ -409,7 +409,7 @@ export default function ProductsPage() {
                     onClick={handleSubmit}
                     className="flex-1 bg-slate-900 text-white py-4 rounded-2xl text-sm font-black uppercase tracking-widest shadow-xl shadow-slate-200 hover:bg-slate-800 transition-all"
                   >
-                    {editId ? "Save Changes" : "Create Product"}
+                    {editId ? "Simpan Perubahan" : "Buat Produk"}
                   </button>
                   <button
                     onClick={() => setShowModal(false)}

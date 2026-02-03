@@ -415,9 +415,7 @@ export default function CounterPage() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <ShoppingCart className="text-amber-500" size={20} />
-                  <h2 className="text-lg font-black text-slate-800">
-                    Pesanan Aktif
-                  </h2>
+                  <h2 className="text-lg font-black text-slate-800">Pesanan</h2>
                   {items.length > 0 && (
                     <span className="bg-amber-500 text-white text-xs font-black px-2 py-0.5 rounded-full">
                       {items.reduce((sum, item) => sum + item.quantity, 0)}

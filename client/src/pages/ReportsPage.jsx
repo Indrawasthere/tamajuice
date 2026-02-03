@@ -202,7 +202,7 @@ export default function ReportsPage() {
 
   const statCards = [
     {
-      label: "Total Revenue",
+      label: "Total Penghasilan",
       value: formatRupiah(totalRevenue),
       sub: `${totalOrders} Transaksi`,
       icon: <DollarSign size={20} />,
@@ -210,7 +210,7 @@ export default function ReportsPage() {
       glow: "shadow-orange-200",
     },
     {
-      label: "Total Orders",
+      label: "Total Pesanan",
       value: totalOrders,
       sub: `${totalCups} Cups Terjual`,
       icon: <ShoppingBag size={20} />,
@@ -220,13 +220,13 @@ export default function ReportsPage() {
     {
       label: "Total Cups",
       value: totalCups,
-      sub: "Menu Terjual",
+      sub: "Cups Terjual",
       icon: <Package size={20} />,
       grad: "from-blue-400 to-indigo-600",
       glow: "shadow-blue-200",
     },
     {
-      label: "Avg Order Value",
+      label: "Rata-rata Pesanan",
       value: formatRupiah(avgOrderValue),
       sub: "Rata-rata per transaksi",
       icon: <TrendingUp size={20} />,
@@ -274,15 +274,6 @@ export default function ReportsPage() {
             variants={itemVariants}
             className="flex justify-between items-center mb-8"
           >
-            <div>
-              <h1 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">
-                Sales Analytics
-              </h1>
-              <p className="text-sm text-slate-400 font-medium">
-                Visualisasi data penjualan dan performa produk Anda.
-              </p>
-            </div>
-
             <div className="flex items-center gap-3">
               {/* Period Selector */}
               <div className="flex bg-slate-50 p-1 rounded-2xl">
@@ -397,7 +388,7 @@ export default function ReportsPage() {
                   Category
                 </h3>
                 <p className="text-sm text-slate-400 font-medium">
-                  Kontribusi revenue per kategori menu
+                  Kontribusi penghasilan per kategori menu
                 </p>
               </div>
             </div>
@@ -503,10 +494,10 @@ export default function ReportsPage() {
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
               <div>
                 <h3 className="text-lg font-black text-slate-800 tracking-tight">
-                  Top Selling Products
+                  Menu Terlaris
                 </h3>
                 <p className="text-sm text-slate-400 font-medium">
-                  Produk dengan volume penjualan tertinggi
+                  Menu dengan volume penjualan tertinggi
                 </p>
               </div>
               <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
@@ -624,9 +615,7 @@ export default function ReportsPage() {
                       <h3 className="text-xl font-black text-slate-800 mb-1">
                         Konfirmasi Close Book
                       </h3>
-                      <p className="text-sm text-slate-400">
-                        Pilih periode penutupan buku Anda.
-                      </p>
+                      <p className="text-sm text-slate-400">Pilih periode</p>
                     </div>
                     <button
                       onClick={() => setShowCloseBook(false)}
@@ -668,10 +657,10 @@ export default function ReportsPage() {
                     <Check size={32} className="text-white" />
                   </div>
                   <h3 className="text-xl font-black text-slate-800 mb-2">
-                    Berhasil Ditutup!
+                    Great!
                   </h3>
                   <p className="text-slate-400 mb-8">
-                    Laporan periode {closeBookResult.period} telah diamankan.
+                    Laporan periode {closeBookResult.period} telah dicatat.
                   </p>
                   <button
                     onClick={() => setShowCloseBook(false)}
