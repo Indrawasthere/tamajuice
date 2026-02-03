@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -16,69 +16,73 @@ export const getDashboardStats = async (req, res) => {
         where: {
           createdAt: {
             gte: today,
-            lt: tomorrow
+            lt: tomorrow,
           },
-          status: 'COMPLETED'
-        }
+          status: "COMPLETED",
+        },
       }),
       prisma.order.aggregate({
         where: {
           createdAt: {
             gte: today,
-            lt: tomorrow
+            lt: tomorrow,
           },
-          status: 'COMPLETED'
+          status: "COMPLETED",
         },
         _sum: {
-          total: true
-        }
-      })
+          total: true,
+        },
+      }),
     ]);
 
     // This month's stats
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    const firstDayOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const firstDayOfNextMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      1,
+    );
 
     const [monthOrders, monthRevenue] = await Promise.all([
       prisma.order.count({
         where: {
           createdAt: {
             gte: firstDayOfMonth,
-            lt: firstDayOfNextMonth
+            lt: firstDayOfNextMonth,
           },
-          status: 'COMPLETED'
-        }
+          status: "COMPLETED",
+        },
       }),
       prisma.order.aggregate({
         where: {
           createdAt: {
             gte: firstDayOfMonth,
-            lt: firstDayOfNextMonth
+            lt: firstDayOfNextMonth,
           },
-          status: 'COMPLETED'
+          status: "COMPLETED",
         },
         _sum: {
-          total: true
-        }
-      })
+          total: true,
+        },
+      }),
     ]);
 
     // Total stats (all time)
     const [totalOrders, totalRevenue, totalProducts] = await Promise.all([
       prisma.order.count({
         where: {
-          status: 'COMPLETED'
-        }
+          status: "COMPLETED",
+        },
       }),
       prisma.order.aggregate({
         where: {
-          status: 'COMPLETED'
+          status: "COMPLETED",
         },
         _sum: {
-          total: true
-        }
+          total: true,
+        },
       }),
-      prisma.product.count()
+      prisma.product.count(),
     ]);
 
     res.json({
@@ -86,67 +90,67 @@ export const getDashboardStats = async (req, res) => {
       data: {
         today: {
           orders: todayOrders,
-          revenue: todayRevenue._sum.total || 0
+          revenue: todayRevenue._sum.total || 0,
         },
         thisMonth: {
           orders: monthOrders,
-          revenue: monthRevenue._sum.total || 0
+          revenue: monthRevenue._sum.total || 0,
         },
         allTime: {
           orders: totalOrders,
           revenue: totalRevenue._sum.total || 0,
-          products: totalProducts
-        }
-      }
+          products: totalProducts,
+        },
+      },
     });
   } catch (error) {
-    console.error('Get dashboard stats error:', error);
+    console.error("Get dashboard stats error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch dashboard stats'
+      message: "Failed to fetch dashboard stats",
     });
   }
 };
 
 export const getSalesChart = async (req, res) => {
   try {
-    const { period = 'week' } = req.query;
+    const { period = "week" } = req.query;
 
     let startDate = new Date();
-    
-    if (period === 'week') {
+
+    if (period === "week") {
       startDate.setDate(startDate.getDate() - 7);
-    } else if (period === 'month') {
+    } else if (period === "month") {
       startDate.setMonth(startDate.getMonth() - 1);
-    } else if (period === 'year') {
+    } else if (period === "year") {
       startDate.setFullYear(startDate.getFullYear() - 1);
     }
 
     const orders = await prisma.order.findMany({
       where: {
         createdAt: {
-          gte: startDate
+          gte: startDate,
         },
-        status: 'COMPLETED'
+        status: "COMPLETED",
       },
       select: {
         createdAt: true,
-        total: true
+        total: true,
       },
       orderBy: {
-        createdAt: 'asc'
-      }
+        createdAt: "asc",
+      },
     });
 
     // Group by date
     const salesByDate = {};
-    orders.forEach(order => {
-      const date = order.createdAt.toISOString().split('T')[0];
+    orders.forEach((order) => {
+      const date = order.createdAt.toISOString().split("T")[0];
       if (!salesByDate[date]) {
         salesByDate[date] = {
           date,
           revenue: 0,
-          orders: 0
+          orders: 0,
         };
       }
       salesByDate[date].revenue += order.total;
@@ -157,13 +161,13 @@ export const getSalesChart = async (req, res) => {
 
     res.json({
       success: true,
-      data: chartData
+      data: chartData,
     });
   } catch (error) {
-    console.error('Get sales chart error:', error);
+    console.error("Get sales chart error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch sales chart'
+      message: "Failed to fetch sales chart",
     });
   }
 };
@@ -177,31 +181,31 @@ export const getTopProducts = async (req, res) => {
       where.order = {
         createdAt: {
           gte: new Date(startDate),
-          lte: new Date(endDate)
+          lte: new Date(endDate),
         },
-        status: 'COMPLETED'
+        status: "COMPLETED",
       };
     } else {
       where.order = {
-        status: 'COMPLETED'
+        status: "COMPLETED",
       };
     }
 
     const topProducts = await prisma.orderItem.groupBy({
-      by: ['productId'],
+      by: ["productId"],
       where,
       _sum: {
-        quantity: true
+        quantity: true,
       },
       _count: {
-        id: true
+        id: true,
       },
       orderBy: {
         _sum: {
-          quantity: 'desc'
-        }
+          quantity: "desc",
+        },
       },
-      take: parseInt(limit)
+      take: parseInt(limit),
     });
 
     // Get product details
@@ -215,30 +219,30 @@ export const getTopProducts = async (req, res) => {
             price: true,
             category: {
               select: {
-                name: true
-              }
-            }
-          }
+                name: true,
+              },
+            },
+          },
         });
 
         return {
           ...product,
           totalQuantity: item._sum.quantity,
           totalOrders: item._count.id,
-          revenue: product.price * item._sum.quantity
+          revenue: product.price * item._sum.quantity,
         };
-      })
+      }),
     );
 
     res.json({
       success: true,
-      data: productsWithDetails
+      data: productsWithDetails,
     });
   } catch (error) {
-    console.error('Get top products error:', error);
+    console.error("Get top products error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch top products'
+      message: "Failed to fetch top products",
     });
   }
 };
@@ -248,42 +252,120 @@ export const getPaymentMethodStats = async (req, res) => {
     const { startDate, endDate } = req.query;
 
     const where = {
-      status: 'COMPLETED'
+      status: "COMPLETED",
     };
 
     if (startDate && endDate) {
       where.createdAt = {
         gte: new Date(startDate),
-        lte: new Date(endDate)
+        lte: new Date(endDate),
       };
     }
 
     const paymentStats = await prisma.order.groupBy({
-      by: ['paymentMethod'],
+      by: ["paymentMethod"],
       where,
       _count: {
-        id: true
+        id: true,
       },
       _sum: {
-        total: true
-      }
+        total: true,
+      },
     });
 
-    const formattedStats = paymentStats.map(stat => ({
+    const formattedStats = paymentStats.map((stat) => ({
       method: stat.paymentMethod,
       orders: stat._count.id,
-      revenue: stat._sum.total || 0
+      revenue: stat._sum.total || 0,
     }));
 
     res.json({
       success: true,
-      data: formattedStats
+      data: formattedStats,
     });
   } catch (error) {
-    console.error('Get payment method stats error:', error);
+    console.error("Get payment method stats error:", error);
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch payment method stats'
+      message: "Failed to fetch payment method stats",
+    });
+  }
+};
+
+export const getRevenueByCategory = async (req, res) => {
+  try {
+    // Ambil semua orderItem yang COMPLETED, grouped by categoryId lewat product
+    const result = await prisma.orderItem.groupBy({
+      by: ["productId"],
+      where: {
+        order: {
+          status: "COMPLETED",
+        },
+      },
+      _sum: {
+        quantity: true,
+      },
+    });
+
+    // Ambil semua categories
+    const categories = await prisma.category.findMany({
+      include: {
+        products: {
+          select: {
+            id: true,
+            price: true,
+          },
+        },
+      },
+    });
+
+    // Build map: productId -> price
+    const productPriceMap = {};
+    categories.forEach((cat) => {
+      cat.products.forEach((prod) => {
+        productPriceMap[prod.id] = {
+          price: prod.price,
+          categoryId: cat.id,
+          categoryName: cat.name,
+        };
+      });
+    });
+
+    // Aggregate revenue per category
+    const categoryRevenueMap = {};
+    result.forEach((item) => {
+      const productInfo = productPriceMap[item.productId];
+      if (!productInfo) return;
+
+      if (!categoryRevenueMap[productInfo.categoryId]) {
+        categoryRevenueMap[productInfo.categoryId] = {
+          id: productInfo.categoryId,
+          name: productInfo.categoryName,
+          revenue: 0,
+          totalSold: 0,
+        };
+      }
+
+      categoryRevenueMap[productInfo.categoryId].revenue +=
+        productInfo.price * item._sum.quantity;
+      categoryRevenueMap[productInfo.categoryId].totalSold +=
+        item._sum.quantity;
+    });
+
+    // Sort by revenue desc
+    const categoryRevenue = Object.values(categoryRevenueMap).sort(
+      (a, b) => b.revenue - a.revenue,
+    );
+
+    res.json({
+      success: true,
+      data: categoryRevenue,
+    });
+  } catch (error) {
+    console.error("Get revenue by category error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch revenue by category",
     });
   }
 };

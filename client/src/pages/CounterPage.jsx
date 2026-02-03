@@ -34,46 +34,58 @@ const itemVariants = {
 };
 
 const ProductCard = ({ product, onAdd }) => {
-  const [isPressed, setIsPressed] = useState(false);
-
   const handleClick = useCallback(() => {
     onAdd(product);
-    setIsPressed(true);
-    setTimeout(() => setIsPressed(false), 300);
   }, [product, onAdd]);
 
   return (
-    <motion.button
+    <motion.div
       variants={itemVariants}
-      whileHover={{ y: -4, scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      whileHover={{ y: -8, scale: 1.02 }}
+      whileTap={{ scale: 0.95 }}
       onClick={handleClick}
-      className={`group relative bg-white rounded-[2rem] border border-slate-100 p-5 shadow-sm hover:shadow-xl transition-all duration-200 overflow-hidden ${isPressed ? "ring-2 ring-amber-500" : ""}`}
+      className="group relative cursor-pointer"
     >
-      <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-400 to-emerald-500" />
+      <div className="h-full bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:border-amber-200 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 overflow-hidden">
+        {/* Dekorasi Gradient Top */}
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-400 via-orange-400 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
-      <div className="flex flex-col h-full">
-        <div className="flex-1 mb-3">
-          <h3 className="text-base font-black text-slate-800 mb-2 line-clamp-2 leading-tight text-left">
-            {product.name}
-          </h3>
-          {product.description && (
-            <p className="text-xs text-slate-400 font-medium line-clamp-2 text-left">
-              {product.description}
-            </p>
-          )}
-        </div>
+        <div className="flex flex-col h-full justify-between">
+          <div className="mb-4">
+            <div className="flex justify-between items-start mb-3">
+              <span className="text-[10px] font-black text-amber-600 bg-amber-50 px-3 py-1 rounded-full uppercase tracking-widest">
+                {product.category?.name || "Menu"}
+              </span>
+            </div>
 
-        <div className="pt-3 border-t border-slate-50">
-          <div className="text-lg font-black text-amber-500 tracking-tighter font-mono text-left">
-            {formatRupiah(product.price)}
+            <h3 className="text-xl font-black text-slate-800 mb-2 leading-tight group-hover:text-amber-600 transition-colors">
+              {product.name}
+            </h3>
+
+            {product.description && (
+              <p className="text-sm text-slate-400 font-medium line-clamp-2 leading-relaxed">
+                {product.description}
+              </p>
+            )}
           </div>
-          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 text-left">
-            {product.category?.name || "Uncategorized"}
+
+          <div className="pt-4 border-t border-slate-50 flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+                Harga
+              </span>
+              <div className="text-xl font-black text-slate-900 tracking-tight font-mono">
+                {formatRupiah(product.price)}
+              </div>
+            </div>
+
+            <div className="w-10 h-10 bg-slate-900 text-white rounded-2xl flex items-center justify-center group-hover:bg-amber-500 group-hover:rotate-90 transition-all duration-300">
+              <Plus size={20} />
+            </div>
           </div>
         </div>
       </div>
-    </motion.button>
+    </motion.div>
   );
 };
 
@@ -384,7 +396,7 @@ export default function CounterPage() {
                   variants={containerVariants}
                   initial="hidden"
                   animate="visible"
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6" // Diubah gap & jumlah kolom
                 >
                   {filteredProducts.map((product) => (
                     <ProductCard

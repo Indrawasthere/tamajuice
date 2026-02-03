@@ -4,6 +4,7 @@ import {
   getSalesChart,
   getTopProducts,
   getPaymentMethodStats,
+  getRevenueByCategory,
 } from "../controllers/analytics.controller.js";
 import { auth } from "../middleware/auth.middleware.js";
 
@@ -13,5 +14,6 @@ router.get("/dashboard", auth, getDashboardStats);
 router.get("/sales-chart", auth, getSalesChart);
 router.get("/top-products", auth, getTopProducts);
 router.get("/payment-methods", auth, getPaymentMethodStats);
+router.get("/revenue-by-category", auth, getRevenueByCategory);
 
 export default router;

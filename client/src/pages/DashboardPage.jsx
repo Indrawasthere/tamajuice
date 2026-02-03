@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   TrendingUp,
   ShoppingBag,
   DollarSign,
-  Package,
   Calendar,
   ChevronRight,
-  ArrowUpRight,
   Activity,
+  AlertTriangle,
+  ArrowUpRight,
+  ArrowUp,
+  ArrowDown,
+  Minus,
 } from "lucide-react";
 import useAuthStore from "../store/authStore";
 import { formatRupiah } from "../lib/format";
@@ -70,29 +73,34 @@ const itemVariants = {
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
-  const [salesData, setSalesData] = useState([]);
-  const [topProducts, setTopProducts] = useState([]);
-  const [paymentStats, setPaymentStats] = useState([]);
+  const [todayVsYesterday, setTodayVsYesterday] = useState([]);
+  const [topProductsToday, setTopProductsToday] = useState([]);
+  const [paymentToday, setPaymentToday] = useState([]);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [chartPeriod, setChartPeriod] = useState("week");
 
   useEffect(() => {
     fetchAll();
-  }, [chartPeriod]);
+  }, []);
 
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [sRes, chartRes, topRes, payRes] = await Promise.all([
+      const [sRes, chartRes, topRes, payRes, prodRes] = await Promise.all([
         api.get("/analytics/dashboard"),
-        api.get(`/analytics/sales-chart?period=${chartPeriod}`),
-        api.get("/analytics/top-products?limit=5"),
-        api.get("/analytics/payment-methods"),
+        api.get("/analytics/sales-chart?period=day"),
+        api.get("/analytics/top-products?limit=5&period=today"),
+        api.get("/analytics/payment-methods?period=today"),
+        api.get("/products"),
       ]);
+
       setStats(sRes.data.data);
-      setSalesData(chartRes.data.data);
-      setTopProducts(topRes.data.data);
-      setPaymentStats(payRes.data.data);
+      setTodayVsYesterday(chartRes.data.data);
+      setTopProductsToday(topRes.data.data);
+      setPaymentToday(payRes.data.data);
+
+      const unavailable = prodRes.data.data.filter((p) => !p.isAvailable);
+      setLowStockProducts(unavailable);
     } catch (e) {
       console.error(e);
     } finally {
@@ -100,12 +108,29 @@ export default function DashboardPage() {
     }
   };
 
+  const todayRevenue = stats?.today?.revenue || 0;
+  const yesterdayRevenue = stats?.yesterday?.revenue || 0;
+  const revenueChange =
+    yesterdayRevenue > 0
+      ? (((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100).toFixed(
+          1,
+        )
+      : 0;
+
+  const todayOrders = stats?.today?.orders || 0;
+  const yesterdayOrders = stats?.yesterday?.orders || 0;
+  const ordersChange =
+    yesterdayOrders > 0
+      ? (((todayOrders - yesterdayOrders) / yesterdayOrders) * 100).toFixed(1)
+      : 0;
+
   const statCards = stats
     ? [
         {
           label: "Revenue Hari Ini",
           value: formatRupiah(stats.today.revenue),
           sub: `${stats.today.orders} Transaksi`,
+          change: revenueChange,
           icon: <DollarSign size={20} />,
           grad: "from-amber-400 to-orange-500",
           glow: "shadow-orange-200",
@@ -114,28 +139,41 @@ export default function DashboardPage() {
           label: "Revenue Bulan Ini",
           value: formatRupiah(stats.thisMonth.revenue),
           sub: `${stats.thisMonth.orders} Transaksi`,
+          change: null,
           icon: <TrendingUp size={20} />,
           grad: "from-emerald-400 to-green-600",
           glow: "shadow-green-200",
         },
-        {
-          label: "Total Revenue",
-          value: formatRupiah(stats.allTime.revenue),
-          sub: `${stats.allTime.orders} Penjualan`,
-          icon: <ShoppingBag size={20} />,
-          grad: "from-blue-400 to-indigo-600",
-          glow: "shadow-blue-200",
-        },
-        {
-          label: "Total Produk",
-          value: stats.allTime.products,
-          sub: "Menu Aktif",
-          icon: <Package size={20} />,
-          grad: "from-violet-400 to-purple-600",
-          glow: "shadow-purple-200",
-        },
       ]
     : [];
+
+  const ChangeIndicator = ({ change }) => {
+    if (change === null || change === undefined) return null;
+
+    const isPositive = change > 0;
+    const isZero = change == 0;
+
+    return (
+      <div
+        className={`flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full ${
+          isZero
+            ? "bg-slate-100 text-slate-500"
+            : isPositive
+              ? "bg-emerald-50 text-emerald-600"
+              : "bg-red-50 text-red-500"
+        }`}
+      >
+        {isZero ? (
+          <Minus size={10} />
+        ) : isPositive ? (
+          <ArrowUp size={10} />
+        ) : (
+          <ArrowDown size={10} />
+        )}
+        {Math.abs(change)}%
+      </div>
+    );
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8FAFC] font-sans text-slate-900">
@@ -171,13 +209,13 @@ export default function DashboardPage() {
           animate="animate"
           className="p-8 max-w-[1600px] mx-auto"
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(400px,1fr))] gap-6 mb-8">
             {statCards.map((card, i) => (
               <motion.div
                 key={i}
                 variants={itemVariants}
                 whileHover={{ y: -8 }}
-                className={`bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:${card.glow} transition-all duration-300 relative overflow-hidden group`}
+                className={`bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 relative overflow-hidden group`}
               >
                 <div
                   className={`absolute -right-4 -top-4 w-24 h-24 bg-gradient-to-br ${card.grad} opacity-[0.03] rounded-full group-hover:scale-150 transition-transform duration-700`}
@@ -193,12 +231,14 @@ export default function DashboardPage() {
                     {card.icon}
                   </div>
                 </div>
-                <h2 className="text-2xl font-black text-slate-800 mb-1 tracking-tight">
+                <h2 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">
                   {card.value}
                 </h2>
-                <div className="flex items-center gap-1 text-xs font-bold text-slate-400 uppercase tracking-tighter">
-                  {card.sub}{" "}
-                  <ChevronRight size={12} className="text-slate-300" />
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
+                    {card.sub}
+                  </span>
+                  <ChangeIndicator change={card.change} />
                 </div>
               </motion.div>
             ))}
@@ -212,85 +252,135 @@ export default function DashboardPage() {
               <div className="flex justify-between items-center mb-8">
                 <div>
                   <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                    <Activity size={20} className="text-amber-500" /> Penjualan
-                    Produk
+                    <Activity size={20} className="text-amber-500" /> Hari Ini
+                    vs Kemarin
                   </h3>
                   <p className="text-sm text-slate-400 font-medium">
-                    Monitoring revenue & volume transaksi
+                    Perbandingan revenue per jam
                   </p>
-                </div>
-                <div className="flex bg-slate-50 p-1 rounded-2xl">
-                  {["week", "month", "year"].map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setChartPeriod(p)}
-                      className={`px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
-                        chartPeriod === p
-                          ? "bg-white text-slate-800 shadow-md"
-                          : "text-slate-400 hover:text-slate-600"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
                 </div>
               </div>
 
               <div className="h-[300px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={salesData}>
-                    <defs>
-                      <linearGradient
-                        id="revenueGrad"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#FDB913"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#FDB913"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical={false}
-                      stroke="#f1f5f9"
-                    />
-                    <XAxis
-                      dataKey="date"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
-                      dy={10}
-                    />
-                    <YAxis
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
-                      tickFormatter={(v) => `${v / 1000}k`}
-                    />
-                    <Tooltip
-                      content={<CustomTooltip />}
-                      cursor={{ stroke: "#cbd5e1", strokeWidth: 2 }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="revenue"
-                      stroke="#FDB913"
-                      strokeWidth={4}
-                      fill="url(#revenueGrad)"
-                      animationDuration={2000}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {loading ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="w-8 h-8 border-4 border-slate-200 border-t-amber-500 rounded-full animate-spin" />
+                  </div>
+                ) : todayVsYesterday.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-2">
+                    <p className="text-slate-400 text-sm font-medium">
+                      Belum ada data hari ini
+                    </p>
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={todayVsYesterday}>
+                      <defs>
+                        <linearGradient
+                          id="todayGrad"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#FDB913"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#FDB913"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                        <linearGradient
+                          id="yesterdayGrad"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#94a3b8"
+                            stopOpacity={0.2}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#94a3b8"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        vertical={false}
+                        stroke="#f1f5f9"
+                      />
+                      <XAxis
+                        dataKey="hour"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          fill: "#94a3b8",
+                        }}
+                        dy={10}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          fill: "#94a3b8",
+                        }}
+                        tickFormatter={(v) => `${v / 1000}k`}
+                      />
+                      <Tooltip
+                        content={<CustomTooltip />}
+                        cursor={{ stroke: "#cbd5e1", strokeWidth: 2 }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="yesterday"
+                        name="Kemarin"
+                        stroke="#cbd5e1"
+                        strokeWidth={2}
+                        strokeDasharray="5 5"
+                        fill="url(#yesterdayGrad)"
+                        animationDuration={1500}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="today"
+                        name="Hari Ini"
+                        stroke="#FDB913"
+                        strokeWidth={3}
+                        fill="url(#todayGrad)"
+                        animationDuration={1500}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+
+              {/* Legend Manual */}
+              <div className="flex items-center justify-center gap-6 mt-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-0.5 bg-amber-400 rounded" />
+                  <span className="text-xs font-bold text-slate-500">
+                    Hari Ini
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-5 h-0.5 border-t-2 border-dashed border-slate-300" />
+                  <span className="text-xs font-bold text-slate-400">
+                    Kemarin
+                  </span>
+                </div>
               </div>
             </motion.div>
 
@@ -299,10 +389,10 @@ export default function DashboardPage() {
               className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col"
             >
               <h3 className="text-lg font-black text-slate-800 mb-1">
-                Payments
+                Payment Hari Ini
               </h3>
               <p className="text-sm text-slate-400 font-medium mb-6">
-                Metode pembayaran terfavorit
+                Metode pembayaran terpopuler hari ini
               </p>
 
               <div className="flex-1 flex flex-col justify-center">
@@ -310,7 +400,7 @@ export default function DashboardPage() {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={paymentStats}
+                        data={paymentToday}
                         innerRadius={60}
                         outerRadius={80}
                         paddingAngle={8}
@@ -318,7 +408,7 @@ export default function DashboardPage() {
                         animationBegin={500}
                         animationDuration={1500}
                       >
-                        {paymentStats.map((_, i) => (
+                        {paymentToday.map((_, i) => (
                           <Cell
                             key={i}
                             fill={PIE_COLORS[i % PIE_COLORS.length]}
@@ -332,7 +422,7 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {paymentStats.map((s, i) => (
+                  {paymentToday.map((s, i) => (
                     <div
                       key={i}
                       className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 group hover:bg-white hover:shadow-md transition-all"
@@ -365,10 +455,10 @@ export default function DashboardPage() {
             <div className="p-8 border-b border-slate-50 flex justify-between items-center bg-white">
               <div>
                 <h3 className="text-lg font-black text-slate-800 tracking-tight">
-                  Best Seller Menu
+                  Best Seller Hari Ini
                 </h3>
                 <p className="text-sm text-slate-400 font-medium">
-                  Produk dengan volume penjualan tertinggi
+                  Produk terlaris hari ini
                 </p>
               </div>
               <button className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 text-white rounded-2xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-lg shadow-slate-200">
@@ -388,7 +478,7 @@ export default function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {topProducts.map((p, i) => (
+                  {topProductsToday.map((p, i) => (
                     <motion.tr
                       key={i}
                       initial={{ opacity: 0, x: -10 }}
@@ -432,6 +522,67 @@ export default function DashboardPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </motion.div>
+          {/* Low Stock Alert */}
+          <motion.div
+            variants={itemVariants}
+            className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden mb-6"
+          >
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-50 rounded-2xl flex items-center justify-center">
+                  <AlertTriangle size={20} className="text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-800">
+                    ⚠️ Low Stock Alert
+                  </h3>
+                  <p className="text-xs text-slate-400 font-medium">
+                    Produk yang saat ini tidak tersedia
+                  </p>
+                </div>
+              </div>
+              <span className="text-xs font-black px-3 py-1 rounded-full bg-red-50 text-red-500 border border-red-100">
+                {lowStockProducts.length} Produk
+              </span>
+            </div>
+
+            <div className="p-4">
+              {lowStockProducts.length === 0 ? (
+                <div className="flex items-center justify-center py-6 gap-2">
+                  <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center">
+                    <span className="text-emerald-500 text-sm">✓</span>
+                  </div>
+                  <p className="text-sm text-emerald-600 font-bold">
+                    Semua produk tersedia
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {lowStockProducts.map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-3 p-4 bg-red-50/50 border border-red-100 rounded-2xl group hover:bg-red-50 transition-all"
+                    >
+                      <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm border border-red-100">
+                        <span className="text-base">🚫</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-black text-slate-800 truncate">
+                          {p.name}
+                        </p>
+                        <p className="text-xs text-red-400 font-bold">
+                          {p.category?.name || "Uncategorized"}
+                        </p>
+                      </div>
+                      <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-red-100 text-red-500 uppercase tracking-wider">
+                        Out
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         </motion.div>

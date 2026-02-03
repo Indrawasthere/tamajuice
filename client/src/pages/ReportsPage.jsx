@@ -28,6 +28,8 @@ import {
   ResponsiveContainer,
   Legend,
   Cell,
+  PieChart,
+  Pie,
 } from "recharts";
 
 const ReportTooltip = ({ active, payload, label }) => {
@@ -77,6 +79,8 @@ const CHART_COLORS = {
   orders: "#7A9B5E",
 };
 
+const PIE_COLORS = ["#FDB913", "#7A9B5E", "#60a5fa", "#E63946", "#a78bfa"];
+
 export default function ReportsPage() {
   // --- States ---
   const [salesData, setSalesData] = useState([]);
@@ -88,6 +92,7 @@ export default function ReportsPage() {
   const [closeBookPeriod, setCloseBookPeriod] = useState("daily");
   const [closeBookResult, setCloseBookResult] = useState(null);
   const [closingLoading, setClosingLoading] = useState(false);
+  const [categoryRevenue, setCategoryRevenue] = useState([]);
 
   // --- Derived Data ---
   const totalRevenue = salesData.reduce((s, d) => s + d.revenue, 0);
@@ -109,6 +114,14 @@ export default function ReportsPage() {
       ]);
       setSalesData(chartRes.data.data);
       setTopProducts(topRes.data.data);
+
+      try {
+        const catRes = await api.get("/analytics/revenue-by-category");
+        setCategoryRevenue(catRes.data.data);
+      } catch (e) {
+        console.warn("Revenue by category belum ready:", e.message);
+        setCategoryRevenue([]);
+      }
     } catch (e) {
       console.error("Error fetching analytics:", e);
     } finally {
@@ -372,6 +385,7 @@ export default function ReportsPage() {
             ))}
           </div>
 
+          {/* Revenue by Category */}
           <motion.div
             variants={itemVariants}
             className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm mb-8"
@@ -379,84 +393,106 @@ export default function ReportsPage() {
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-                  <Activity size={20} className="text-amber-500" /> Revenue &
-                  Transaction Trend
+                  <Activity size={20} className="text-amber-500" /> Revenue by
+                  Category
                 </h3>
                 <p className="text-sm text-slate-400 font-medium">
-                  Data harian berdasarkan periode yang dipilih.
+                  Kontribusi revenue per kategori menu
                 </p>
               </div>
             </div>
 
-            <div className="h-[350px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={salesData}>
-                  <CartesianGrid
-                    strokeDasharray="3 3"
-                    vertical={false}
-                    stroke="#f1f5f9"
-                  />
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
-                    dy={10}
-                  />
-                  <YAxis
-                    yAxisId="left"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
-                    tickFormatter={(v) => `${v / 1000}k`}
-                  />
-                  <YAxis
-                    yAxisId="right"
-                    orientation="right"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fontWeight: 700, fill: "#94a3b8" }}
-                  />
-                  <Tooltip
-                    content={<ReportTooltip />}
-                    cursor={{ fill: "#f8fafc" }}
-                  />
-                  <Legend
-                    verticalAlign="top"
-                    align="right"
-                    iconType="circle"
-                    wrapperStyle={{
-                      paddingBottom: "20px",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                    }}
-                  />
-                  <Bar
-                    yAxisId="left"
-                    dataKey="revenue"
-                    name="Revenue"
-                    radius={[6, 6, 0, 0]}
-                    barSize={32}
-                  >
-                    {salesData.map((entry, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          index === salesData.length - 1 ? "#FDB913" : "#e2e8f0"
+            <div className="flex flex-col lg:flex-row items-center gap-8">
+              {/* Pie Chart */}
+              <div className="w-full lg:w-[280px] h-[240px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryRevenue}
+                      innerRadius={60}
+                      outerRadius={90}
+                      paddingAngle={4}
+                      dataKey="revenue"
+                      animationBegin={300}
+                      animationDuration={1500}
+                    >
+                      {categoryRevenue.map((_, i) => (
+                        <Cell
+                          key={i}
+                          fill={PIE_COLORS[i % PIE_COLORS.length]}
+                          stroke="none"
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white/95 border border-slate-200 p-3 rounded-xl shadow-lg">
+                              <p className="text-xs font-black text-slate-800">
+                                {payload[0].payload.name}
+                              </p>
+                              <p className="text-sm font-black text-amber-600">
+                                {formatRupiah(payload[0].value)}
+                              </p>
+                            </div>
+                          );
                         }
-                      />
-                    ))}
-                  </Bar>
-                  <Bar
-                    yAxisId="right"
-                    dataKey="orders"
-                    name="Orders"
-                    fill="#7A9B5E"
-                    radius={[6, 6, 0, 0]}
-                    barSize={32}
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+                        return null;
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Category List */}
+              <div className="flex-1 w-full space-y-3">
+                {categoryRevenue.map((cat, i) => {
+                  const maxRevenue = Math.max(
+                    ...categoryRevenue.map((c) => c.revenue),
+                  );
+                  const percentage = (
+                    (cat.revenue / totalRevenue) *
+                    100
+                  ).toFixed(1);
+                  return (
+                    <div key={i} className="group">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className="w-2.5 h-2.5 rounded-full"
+                            style={{
+                              backgroundColor:
+                                PIE_COLORS[i % PIE_COLORS.length],
+                            }}
+                          />
+                          <span className="text-sm font-black text-slate-700">
+                            {cat.name}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-bold text-slate-400">
+                            {percentage}%
+                          </span>
+                          <span className="text-sm font-black text-slate-800 font-mono">
+                            {formatRupiah(cat.revenue)}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Progress Bar */}
+                      <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div
+                          className="h-full rounded-full transition-all duration-700"
+                          style={{
+                            width: `${(cat.revenue / maxRevenue) * 100}%`,
+                            backgroundColor: PIE_COLORS[i % PIE_COLORS.length],
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
 
